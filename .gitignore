@@ -7,3 +7,5 @@ public/uploads/*
 data/invoices_daily/*
 !data/invoices_daily/.gitkeep
 .DS_Store
+data/users.json
+data/tenants/

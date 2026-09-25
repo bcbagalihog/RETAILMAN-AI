@@ -1,66 +1,60 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const DATA_DIR = path.join(__dirname, '../../data');
+const BASE_DATA_DIR = path.join(__dirname, "../../data");
 
-/**
- * Ensures the data directory exists.
- */
-function ensureDataDir() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+function resolveDataDir(tenantId) {
+  if (!tenantId) {
+    return BASE_DATA_DIR;
+  }
+  const safeTenantId = String(tenantId).replace(/[^a-zA-Z0-9_-]/g, "");
+  return path.join(BASE_DATA_DIR, "tenants", safeTenantId);
+}
+
+function ensureDir(dirPath) {
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
   }
 }
 
-/**
- * Safely reads a JSON file from the data vault.
- * @param {string} filename 
- * @param {any} fallback 
- * @returns {Promise<any>}
- */
-async function readJSON(filename, fallback = []) {
-  ensureDataDir();
-  const filePath = path.join(DATA_DIR, filename);
+async function readJSON(filename, fallback = [], tenantId = null) {
+  const targetDir = resolveDataDir(tenantId);
+  ensureDir(targetDir);
+  const filePath = path.join(targetDir, filename);
+
   try {
     const parentDir = path.dirname(filePath);
-    if (!fs.existsSync(parentDir)) {
-      fs.mkdirSync(parentDir, { recursive: true });
-    }
+    ensureDir(parentDir);
+
     if (!fs.existsSync(filePath)) {
-      await safeWriteJSON(filename, fallback);
+      await safeWriteJSON(filename, fallback, tenantId);
       return fallback;
     }
-    const content = await fs.promises.readFile(filePath, 'utf-8');
+    const content = await fs.promises.readFile(filePath, "utf-8");
     return JSON.parse(content);
   } catch (err) {
-    console.error(`[Vault Error] Failed reading ${filename}:`, err);
+    console.error("[Vault Error] Failed reading " + filename + " (tenant: " + tenantId + "):", err);
     return fallback;
   }
 }
 
-/**
- * Atomically writes a JSON file to prevent partial file corruptions.
- * @param {string} filename 
- * @param {any} data 
- * @returns {Promise<boolean>}
- */
-async function safeWriteJSON(filename, data) {
-  ensureDataDir();
-  const filePath = path.join(DATA_DIR, filename);
+async function safeWriteJSON(filename, data, tenantId = null) {
+  const targetDir = resolveDataDir(tenantId);
+  ensureDir(targetDir);
+  const filePath = path.join(targetDir, filename);
   const parentDir = path.dirname(filePath);
-  if (!fs.existsSync(parentDir)) {
-    fs.mkdirSync(parentDir, { recursive: true });
-  }
+  ensureDir(parentDir);
 
-  const tempPath = path.join(parentDir, `${path.basename(filename)}.${Date.now()}.tmp`);
+  const tempName = path.basename(filename) + "." + Date.now() + "." + Math.random().toString(36).substring(2, 7) + ".tmp";
+  const tempPath = path.join(parentDir, tempName);
 
   try {
     const jsonStr = JSON.stringify(data, null, 2);
-    await fs.promises.writeFile(tempPath, jsonStr, 'utf-8');
+    await fs.promises.writeFile(tempPath, jsonStr, "utf-8");
     await fs.promises.rename(tempPath, filePath);
     return true;
   } catch (err) {
-    console.error(`[Vault Error] Failed writing ${filename}:`, err);
+    console.error("[Vault Error] Failed writing " + filename + " (tenant: " + tenantId + "):", err);
     if (fs.existsSync(tempPath)) {
       try { await fs.promises.unlink(tempPath); } catch (_) {}
     }
