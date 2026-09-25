@@ -355,7 +355,23 @@ window.App.POS = {
       };
 
       if (window.App.toast) window.App.toast('Processing transaction...', 'info');
-      const res = await window.App.api.checkout(payload);
+
+      let res = null;
+      if (window.App.api && typeof window.App.api.checkout === 'function') {
+        res = await window.App.api.checkout(payload);
+      } else if (window.App.API && typeof window.App.API.checkout === 'function') {
+        res = await window.App.API.checkout(payload);
+      } else {
+        const token = localStorage.getItem('retailman_jwt_token');
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = 'Bearer ' + token;
+        const fetchRes = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify(payload)
+        });
+        res = await fetchRes.json();
+      }
 
       if (res && res.success) {
         window.App.state.cart = [];
