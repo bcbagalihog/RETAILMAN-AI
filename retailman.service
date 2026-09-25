@@ -1,0 +1,14 @@
+[Unit]
+Description=RETAILMAN AI Social Commerce Node Server
+After=network.target
+
+[Service]
+Type=simple
+User=bab
+WorkingDirectory=/home/bab/Documents/RETAILMAN AI
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
