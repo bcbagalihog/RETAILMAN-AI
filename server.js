@@ -154,6 +154,34 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  
+  if (method === "GET" && pathname === "/api/shop-users") {
+    const shopUsers = await readJSON("shop_users.json", [], tenantId);
+    return sendJSON(res, { success: true, shopUsers });
+  }
+
+  if (method === "POST" && pathname === "/api/shop-users") {
+    try {
+      const { name, shop_branch, role, pin } = await getRequestBody(req);
+      let shopUsers = await readJSON("shop_users.json", [], tenantId);
+
+      const newUser = {
+        id: "USR-" + Date.now().toString().slice(-6),
+        name: name || "Cashier",
+        shop_branch: shop_branch || "Main Branch",
+        role: role || "Cashier",
+        pin: pin || "1234",
+        created_at: new Date().toISOString()
+      };
+
+      shopUsers.push(newUser);
+      await safeWriteJSON("shop_users.json", shopUsers, tenantId);
+      return sendJSON(res, { success: true, shopUsers, user: newUser });
+    } catch (err) {
+      return sendJSON(res, { success: false, message: err.message }, 500);
+    }
+  }
+
   // --- CORE ERP API ROUTES (TENANT ISOLATED) ---
 
   if (method === "GET" && pathname === "/api/products") {

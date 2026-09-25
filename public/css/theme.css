@@ -778,3 +778,96 @@ body.dark-theme {
     display: none !important;
   }
 }
+
+/* --- Equalized Uniform Header Design System --- */
+#app-header {
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.85rem;
+  background: var(--bg-card);
+  border-bottom: 2px solid #000;
+  box-sizing: border-box;
+}
+
+.header-left, .header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: 34px;
+}
+
+.brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 34px !important;
+}
+
+.brand-logo-img {
+  height: 34px !important;
+  width: 34px !important;
+  max-height: 34px !important;
+  max-width: 34px !important;
+  min-height: 34px !important;
+  min-width: 34px !important;
+  object-fit: contain !important;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.brand-title {
+  font-family: var(--font-heading), 'Outfit', sans-serif;
+  font-weight: 950;
+  font-size: 1.15rem !important;
+  height: 34px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  color: #FFFFFF;
+  margin: 0;
+  line-height: 1 !important;
+}
+
+.brand-ai {
+  color: #00E5FF;
+  background: linear-gradient(135deg, rgba(8, 102, 255, 0.4), rgba(0, 198, 255, 0.25));
+  border: 1.5px solid #0866FF;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 0.8rem !important;
+  font-weight: 900;
+  margin-left: 5px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.sub-badge-pill, .auth-chip, .settings-chip {
+  height: 34px !important;
+  max-height: 34px !important;
+  min-height: 34px !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.4rem !important;
+  padding: 0 10px !important;
+  border-radius: 8px !important;
+  font-size: 0.82rem !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  border: 1.5px solid #000 !important;
+  box-shadow: 2px 2px 0px #000 !important;
+  white-space: nowrap !important;
+  margin: 0 !important;
+}
+
+@media (max-width: 640px) {
+  #app-header {
+    padding: 0 0.5rem !important;
+  }
+  .sub-badge-pill, .auth-chip, .settings-chip {
+    padding: 0 8px !important;
+  }
+}

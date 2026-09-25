@@ -118,9 +118,76 @@ window.App.toast = function(message, type = 'info') {
 /**
  * Store & App Settings Modal
  */
-window.App.openSettingsModal = function() {
+window.App.openSettingsModal = async function() {
   const metaCatalog = window.App.state.metaCatalog || {};
   const currentSellerName = metaCatalog.page_name || 'RetailMan Official Store';
+
+  const user = window.App.auth ? window.App.auth.getUser() : null;
+  const isPro = user && user.subscription && user.subscription.plan === 'pro';
+
+  let shopUsersHtml = '';
+  if (isPro) {
+    let shopUsers = [];
+    try {
+      const res = await window.App.api.get('/api/shop-users');
+      if (res && res.shopUsers) shopUsers = res.shopUsers;
+    } catch (_) {}
+
+    const usersList = shopUsers.map(u => `
+      <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.05); padding:8px 12px; border-radius:8px; border:1px solid #333; margin-top:4px;">
+        <div>
+          <div style="font-weight:900; font-size:0.9rem; color:#fff;">${u.name} <span style="font-size:0.75rem; color:#00E5FF; font-weight:normal;">(${u.role})</span></div>
+          <div style="font-size:0.75rem; color:#aaa;">Shop Outlet: ${u.shop_branch} | PIN: ${u.pin}</div>
+        </div>
+      </div>
+    `).join('');
+
+    shopUsersHtml = `
+      <div style="background:rgba(8,102,255,0.08); border:2px solid #0866FF; padding:1rem; border-radius:12px; margin-top:1rem;">
+        <div style="font-weight:900; font-size:1rem; color:#00E5FF; margin-bottom:0.6rem;">
+          <i class="ph-bold ph-users-three"></i> Multi-Shop Accounts & Cashiers (PRO Enabled)
+        </div>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
+          <input type="text" id="add-user-name" placeholder="Staff/Cashier Name" class="nb-input" style="padding:6px 10px; font-size:0.85rem;">
+          <input type="text" id="add-user-branch" placeholder="Shop Branch (e.g. Bonifacio)" class="nb-input" style="padding:6px 10px; font-size:0.85rem;">
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
+          <select id="add-user-role" class="nb-input" style="padding:6px 10px; font-size:0.85rem; background:#18191a; color:#fff;">
+            <option value="Cashier">Role: Cashier</option>
+            <option value="Manager">Role: Store Manager</option>
+            <option value="Clerk">Role: Inventory Clerk</option>
+          </select>
+          <input type="password" id="add-user-pin" placeholder="Staff PIN (4 digits)" maxlength="4" class="nb-input" style="padding:6px 10px; font-size:0.85rem;">
+        </div>
+        <button class="nb-btn primary" style="width:100%; font-weight:900; font-size:0.85rem; padding:6px;" onclick="window.App.addShopUser()">
+          + Add Shop Account User
+        </button>
+
+        <div style="margin-top:0.8rem;">
+          <div style="font-size:0.8rem; font-weight:800; color:#888; margin-bottom:4px;">Active Shop Users (${shopUsers.length}):</div>
+          ${usersList || '<div style="font-size:0.8rem; color:#666;">No additional shop accounts added yet.</div>'}
+        </div>
+      </div>
+    `;
+  } else {
+    shopUsersHtml = `
+      <div style="background:linear-gradient(135deg, rgba(8,102,255,0.15) 0%, rgba(0,229,255,0.1) 100%); border:2px dashed #0866FF; padding:1.2rem; border-radius:12px; margin-top:1rem; text-align:center;">
+        <div style="font-weight:900; font-size:1.05rem; color:#00E5FF; margin-bottom:0.3rem;">
+          <i class="ph-bold ph-users-three"></i> Multi-Shop & Multi-Cashier Accounts
+        </div>
+        <div style="font-size:0.82rem; color:#aaa; margin-bottom:0.6rem;">
+          Add multiple cashier & staff accounts for different shop outlets (Bonifacio, Batangas, etc.).
+        </div>
+        <div style="display:inline-block; background:rgba(255,230,0,0.15); color:#FFE600; border:1px solid #FFE600; padding:2px 8px; border-radius:6px; font-weight:800; font-size:0.75rem; margin-bottom:0.8rem;">
+          REQUIRES PRO SUBSCRIPTION
+        </div>
+        <button class="nb-btn primary" style="width:100%; font-weight:900; padding:0.6rem;" onclick="window.App.closeModal(); window.App.Subscription.openModal();">
+          <i class="ph-bold ph-lightning"></i> Upgrade to PRO Plan (₱499/mo)
+        </button>
+      </div>
+    `;
+  }
 
   const html = `
     <div style="display:flex; flex-direction:column; gap:12px;">
@@ -140,6 +207,8 @@ window.App.openSettingsModal = function() {
         </div>
       </div>
 
+      ${shopUsersHtml}
+
       <button class="btn-emerald" style="justify-content:center; padding:12px; margin-top:6px;" onclick="window.App.saveSettings()">
         <i class="ph-bold ph-floppy-disk"></i> SAVE SETTINGS & STORE PROFILE
       </button>
@@ -147,6 +216,30 @@ window.App.openSettingsModal = function() {
   `;
 
   window.App.openModal('⚙️ Store & App Settings', html);
+};
+
+window.App.addShopUser = async function() {
+  const name = document.getElementById('add-user-name').value;
+  const branch = document.getElementById('add-user-branch').value;
+  const role = document.getElementById('add-user-role').value;
+  const pin = document.getElementById('add-user-pin').value;
+
+  if (!name || !pin) {
+    alert('Please provide Staff Name and Staff PIN.');
+    return;
+  }
+
+  try {
+    const res = await window.App.api.post('/api/shop-users', { name, shop_branch: branch, role, pin });
+    if (res && res.success) {
+      if (window.App.showNotification) window.App.showNotification('Shop Account User Added!', 'success');
+      window.App.openSettingsModal();
+    } else {
+      alert(res.message || 'Failed adding user');
+    }
+  } catch (err) {
+    alert('Error: ' + err.message);
+  }
 };
 
 window.App.saveSettings = function() {
