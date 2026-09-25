@@ -10,7 +10,7 @@ window.App.POS = {
   async render() {
     const rawProducts = window.App.state.products || [];
     // Only show Active products in POS
-    const products = rawProducts.filter(p => p.fb_sync !== false);
+    const products = rawProducts.filter(p => p.fb_sync !== false && p.is_active !== false);
     const cart = window.App.state.cart || [];
     const activeCat = window.App.state.activeCategory || 'ALL';
 

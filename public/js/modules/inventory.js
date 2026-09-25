@@ -133,10 +133,36 @@ window.App.Inventory = {
   },
 
   async toggleMetaSync(productId, isChecked) {
-    const res = await window.App.API.toggleMetaSync(productId, isChecked);
-    if (res.success) {
-      window.App.toast(isChecked ? 'Published to Meta Catalog!' : 'Removed from Meta Catalog', 'info');
-      await window.App.refreshData();
+    let res = null;
+    try {
+      if (window.App.api && typeof window.App.api.toggleMetaSync === 'function') {
+        res = await window.App.api.toggleMetaSync(productId, isChecked);
+      } else {
+        const token = localStorage.getItem('retailman_jwt_token');
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = 'Bearer ' + token;
+        const fetchRes = await fetch('/api/meta/toggle-sync', {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify({ product_id: productId, fb_sync: isChecked, is_active: isChecked })
+        });
+        res = await fetchRes.json();
+      }
+
+      if (res && res.success) {
+        const products = window.App.state.products || [];
+        const idx = products.findIndex(p => p.id === productId);
+        if (idx !== -1) {
+          products[idx].fb_sync = isChecked;
+          products[idx].is_active = isChecked;
+        }
+        if (window.App.toast) {
+          window.App.toast(isChecked ? 'Product Activated & Published!' : 'Product Deactivated from POS', isChecked ? 'success' : 'info');
+        }
+        if (window.App.refreshData) await window.App.refreshData();
+      }
+    } catch (err) {
+      console.error('[Toggle Active Error]:', err);
     }
   },
 

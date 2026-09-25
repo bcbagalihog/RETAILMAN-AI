@@ -182,6 +182,30 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  
+  if (method === "POST" && (pathname === "/api/meta/toggle-sync" || pathname === "/api/products/toggle-active")) {
+    try {
+      const { product_id, id, fb_sync, is_active } = await getRequestBody(req);
+      const targetId = product_id || id;
+      let products = await readJSON("products.json", [], tenantId);
+      const idx = products.findIndex(p => p.id === targetId);
+
+      if (idx !== -1) {
+        const activeState = (fb_sync !== undefined) ? Boolean(fb_sync) : Boolean(is_active);
+        products[idx].fb_sync = activeState;
+        products[idx].is_active = activeState;
+        products[idx].updated_at = new Date().toISOString();
+
+        await safeWriteJSON("products.json", products, tenantId);
+        return sendJSON(res, { success: true, product: products[idx] });
+      }
+
+      return sendJSON(res, { success: false, message: "Product not found" }, 404);
+    } catch (err) {
+      return sendJSON(res, { success: false, message: err.message }, 500);
+    }
+  }
+
   // --- CORE ERP API ROUTES (TENANT ISOLATED) ---
 
   if (method === "GET" && pathname === "/api/products") {
