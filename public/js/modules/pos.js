@@ -301,7 +301,7 @@ window.App.POS = {
           </select>
         </div>
 
-        <button class="btn-emerald" style="width:100%; justify-content:center; padding:14px; font-size:1.1rem; margin-top:8px;" onclick="window.App.POS.processCheckout()">
+        <button type="button" id="pos-submit-checkout-btn" class="btn-emerald" style="width:100%; justify-content:center; padding:14px; font-size:1.1rem; margin-top:8px; cursor:pointer; touch-action:manipulation; position:relative; z-index:100;" onclick="event.stopPropagation(); window.App.POS.processCheckout(this)">
           <i class="ph-bold ph-check-circle"></i> COMPLETE SALE & RECEIPT
         </button>
       </div>
@@ -320,38 +320,61 @@ window.App.POS = {
     }
   },
 
-  async processCheckout() {
-    const cart = window.App.state.cart;
-    if (!cart || cart.length === 0) {
-      if (window.App.toast) window.App.toast('Cart is empty', 'warning');
-      return;
+  async processCheckout(btnElement) {
+    if (this.isProcessingCheckout) return;
+    this.isProcessingCheckout = true;
+
+    if (btnElement) {
+      btnElement.disabled = true;
+      btnElement.innerHTML = `<i class="ph-bold ph-circle-notch spinner"></i> Processing Sale...`;
     }
-    const methodSelect = document.getElementById('checkout-payment-method');
-    const paymentMethod = methodSelect ? methodSelect.value : 'Cash';
-    const discountInput = document.getElementById('checkout-discount-input');
-    const discount = discountInput ? Math.max(0, parseFloat(discountInput.value || 0)) : 0;
 
-    const payload = {
-      cart: cart,
-      items: cart,
-      payment_method: paymentMethod,
-      cashier: window.App.state.cashier || 'Manager',
-      customer_name: 'Walk-in Retail Buyer',
-      discount: discount
-    };
+    try {
+      const cart = window.App.state.cart;
+      if (!cart || cart.length === 0) {
+        if (window.App.toast) window.App.toast('Cart is empty', 'warning');
+        this.isProcessingCheckout = false;
+        if (btnElement) {
+          btnElement.disabled = false;
+          btnElement.innerHTML = `<i class="ph-bold ph-check-circle"></i> COMPLETE SALE & RECEIPT`;
+        }
+        return;
+      }
+      const methodSelect = document.getElementById('checkout-payment-method');
+      const paymentMethod = methodSelect ? methodSelect.value : 'Cash';
+      const discountInput = document.getElementById('checkout-discount-input');
+      const discount = discountInput ? Math.max(0, parseFloat(discountInput.value || 0)) : 0;
 
-    if (window.App.toast) window.App.toast('Processing transaction...', 'info');
-    const res = await window.App.api.checkout(payload);
+      const payload = {
+        cart: cart,
+        items: cart,
+        payment_method: paymentMethod,
+        cashier: window.App.state.cashier || 'Manager',
+        customer_name: 'Walk-in Retail Buyer',
+        discount: discount
+      };
 
-    if (res && res.success) {
-      window.App.state.cart = [];
-      this.currentDiscount = 0;
-      if (window.App.refreshData) await window.App.refreshData();
-      window.App.closeModal();
-      this.updateDock();
-      this.openReceiptModal(res.invoice);
-    } else {
-      if (window.App.toast) window.App.toast(`Checkout error: ${res ? res.message : 'Transaction failed'}`, 'error');
+      if (window.App.toast) window.App.toast('Processing transaction...', 'info');
+      const res = await window.App.api.checkout(payload);
+
+      if (res && res.success) {
+        window.App.state.cart = [];
+        this.currentDiscount = 0;
+        if (window.App.refreshData) await window.App.refreshData();
+        window.App.closeModal();
+        this.updateDock();
+        this.openReceiptModal(res.invoice);
+      } else {
+        if (window.App.toast) window.App.toast(`Checkout error: ${res ? res.message : 'Transaction failed'}`, 'error');
+      }
+    } catch (err) {
+      if (window.App.toast) window.App.toast(`Checkout error: ${err.message}`, 'error');
+    } finally {
+      this.isProcessingCheckout = false;
+      if (btnElement && document.body.contains(btnElement)) {
+        btnElement.disabled = false;
+        btnElement.innerHTML = `<i class="ph-bold ph-check-circle"></i> COMPLETE SALE & RECEIPT`;
+      }
     }
   },
 
