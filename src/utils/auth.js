@@ -110,6 +110,7 @@ async function registerTenant(email, password, storeName) {
       status: "active",
       
       invoiceLimit: 50,
+      tokensBalance: 50,
       monthlyInvoicesUsed: 0,
       updatedAt: now.toISOString()
     }
@@ -188,6 +189,69 @@ function sanitizeUser(user) {
   return safe;
 }
 
+
+async function addTokens(tenantId, amount) {
+  const users = await readJSON(USERS_FILE, []);
+  let userIndex = users.findIndex(u => u.tenantId === tenantId);
+  if (userIndex === -1) {
+    const demoUser = {
+      tenantId: tenantId,
+      email: tenantId + "@retailman.local",
+      passwordHash: "",
+      storeName: "Main Store",
+      createdAt: new Date().toISOString(),
+      subscription: {
+        plan: "free_plan",
+        status: "active",
+        tokensBalance: 50,
+        monthlyInvoicesUsed: 0,
+        updatedAt: new Date().toISOString()
+      }
+    };
+    users.push(demoUser);
+    userIndex = users.length - 1;
+  }
+
+  const sub = users[userIndex].subscription || {};
+  sub.tokensBalance = (sub.tokensBalance !== undefined ? sub.tokensBalance : 50) + Number(amount);
+  users[userIndex].subscription = sub;
+
+  await safeWriteJSON(USERS_FILE, users);
+  return sanitizeUser(users[userIndex]);
+}
+
+async function deductToken(tenantId) {
+  const users = await readJSON(USERS_FILE, []);
+  let userIndex = users.findIndex(u => u.tenantId === tenantId);
+  if (userIndex === -1) {
+    const demoUser = {
+      tenantId: tenantId,
+      email: tenantId + "@retailman.local",
+      passwordHash: "",
+      storeName: "Main Store",
+      createdAt: new Date().toISOString(),
+      subscription: {
+        plan: "free_plan",
+        status: "active",
+        tokensBalance: 50,
+        monthlyInvoicesUsed: 0,
+        updatedAt: new Date().toISOString()
+      }
+    };
+    users.push(demoUser);
+    userIndex = users.length - 1;
+  }
+
+  const sub = users[userIndex].subscription || {};
+  if (sub.plan === "pro") return true; // Pro plan has unlimited tokens
+  if ((sub.tokensBalance !== undefined ? sub.tokensBalance : 50) <= 0) return false;
+
+  sub.tokensBalance = Math.max(0, (sub.tokensBalance !== undefined ? sub.tokensBalance : 50) - 1);
+  users[userIndex].subscription = sub;
+  await safeWriteJSON(USERS_FILE, users);
+  return true;
+}
+
 module.exports = {
   generateJWT,
   verifyJWT,
@@ -195,5 +259,7 @@ module.exports = {
   loginTenant,
   getTenantProfile,
   updateSubscription,
-  incrementInvoiceUsage
+  incrementInvoiceUsage,
+  addTokens,
+  deductToken
 };

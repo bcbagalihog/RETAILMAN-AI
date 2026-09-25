@@ -36,6 +36,10 @@
         </div>
 
       <div class="header-right" style="display:flex; align-items:center; gap:0.5rem;">
+        <div id="token-chip" class="token-chip" onclick="window.App.Tokens.openStoreModal()" title="Pay-As-You-Go Token Store">
+          🪙 <span id="header-token-count">50</span> Tokens
+        </div>
+
         <div id="sub-tier-badge" class="sub-badge-pill trial" onclick="window.App.Subscription.openModal()" title="Subscription Plan & Usage">
           <i class="ph-bold ph-clock"></i> Free Plan
         </div>
@@ -123,12 +127,13 @@
   <script src="/js/kernel/router.js?v=17"></script>
   
   <!-- Subsystem Modules -->
-  <script src="/js/modules/pos.js?v=17"></script>
-  <script src="/js/modules/inventory.js?v=17"></script>
-  <script src="/js/modules/metahub.js?v=17"></script>
-  <script src="/js/modules/billing.js?v=17"></script>
-  <script src="/js/modules/customers.js?v=17"></script>
-  <script src="/js/modules/subscription.js?v=17"></script>
+  <script src="/js/modules/pos.js?v=18"></script>
+  <script src="/js/modules/inventory.js?v=18"></script>
+  <script src="/js/modules/metahub.js?v=18"></script>
+  <script src="/js/modules/billing.js?v=18"></script>
+  <script src="/js/modules/customers.js?v=18"></script>
+  <script src="/js/modules/subscription.js?v=18"></script>
+  <script src="/js/modules/tokens.js?v=18"></script>
 
   <!-- App Bootstrap -->
   <script>

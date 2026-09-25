@@ -3,6 +3,8 @@ const fs = require("fs");
 const path = require("path");
 const { readJSON, safeWriteJSON } = require("./src/utils/vault");
 const {
+  addTokens,
+  deductToken,
   verifyJWT,
   registerTenant,
   loginTenant,
@@ -206,6 +208,47 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  
+  if (method === "GET" && pathname === "/api/tokens/balance") {
+    const profile = await getTenantProfile(tenantId);
+    const sub = profile ? (profile.subscription || {}) : {};
+    return sendJSON(res, {
+      success: true,
+      tokensBalance: sub.plan === "pro" ? 999999 : (sub.tokensBalance !== undefined ? sub.tokensBalance : 50),
+      plan: sub.plan || "free_plan"
+    });
+  }
+
+  if (method === "POST" && pathname === "/api/tokens/topup") {
+    try {
+      const { pack_id, amount, payment_method } = await getRequestBody(req);
+      let tokenAmount = 500;
+
+      if (pack_id === "starter_500" || amount == 500) {
+        tokenAmount = 500;
+      } else if (pack_id === "growth_2000" || amount == 2000) {
+        tokenAmount = 2000;
+      } else if (pack_id === "pro_unlimited") {
+        const updatedUser = await updateSubscription(tenantId, "pro", 999999);
+        return sendJSON(res, {
+          success: true,
+          message: "🎉 Upgraded to PRO Unlimited Plan!",
+          subscription: updatedUser.subscription
+        });
+      }
+
+      const updatedUser = await addTokens(tenantId, tokenAmount);
+      return sendJSON(res, {
+        success: true,
+        message: "Successfully credited " + tokenAmount + " Tokens via " + (payment_method || "GCash/Maya") + "!",
+        tokensBalance: updatedUser.subscription.tokensBalance,
+        subscription: updatedUser.subscription
+      });
+    } catch (err) {
+      return sendJSON(res, { success: false, message: err.message }, 400);
+    }
+  }
+
   // --- CORE ERP API ROUTES (TENANT ISOLATED) ---
 
   if (method === "GET" && pathname === "/api/products") {
@@ -262,11 +305,11 @@ const server = http.createServer(async (req, res) => {
       const profile = await getTenantProfile(tenantId);
       if (profile && profile.subscription) {
         const sub = profile.subscription;
-        if (sub.plan === "free_trial" && (sub.monthlyInvoicesUsed || 0) >= (sub.invoiceLimit || 50)) {
+        if (sub.plan !== "pro" && (sub.tokensBalance !== undefined ? sub.tokensBalance : 50) <= 0) {
           return sendJSON(res, {
             success: false,
-            upgrade_required: true,
-            message: "Free Trial limit reached (50/50 invoices processed). Please upgrade to Pro Plan for unlimited sales processing!"
+            tokens_depleted: true,
+            message: "🪙 Token balance depleted (0 Tokens left). Please top up your tokens or upgrade to Pro to process transactions!"
           }, 402);
         }
       }
@@ -340,6 +383,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       await incrementInvoiceUsage(tenantId);
+      await deductToken(tenantId);
 
       return sendJSON(res, { success: true, invoice: newInvoice, updated_products: products });
     } catch (err) {

@@ -843,7 +843,7 @@ body.dark-theme {
   align-items: center;
 }
 
-.sub-badge-pill, .auth-chip, .settings-chip {
+.sub-badge-pill, .auth-chip, .settings-chip, .token-chip {
   height: 34px !important;
   max-height: 34px !important;
   min-height: 34px !important;
@@ -863,11 +863,23 @@ body.dark-theme {
   margin: 0 !important;
 }
 
+.token-chip {
+  background: rgba(0, 229, 255, 0.12);
+  border-color: #00E5FF !important;
+  color: #00E5FF;
+  cursor: pointer;
+}
+
+.token-chip:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px #000 !important;
+}
+
 @media (max-width: 640px) {
   #app-header {
     padding: 0 0.5rem !important;
   }
-  .sub-badge-pill, .auth-chip, .settings-chip {
+  .sub-badge-pill, .auth-chip, .settings-chip, .token-chip {
     padding: 0 8px !important;
   }
 }
