@@ -80,25 +80,19 @@ body.dark-theme {
   user-select: none;
 }
 
-.brand-logo-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #0866FF 0%, #00D4FF 100%);
-  border: 2px solid #000000;
-  box-shadow: 2.5px 2.5px 0px #000000, 0 0 12px rgba(8, 102, 255, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #FFFFFF;
-  font-size: 1.35rem;
+.brand-logo-img {
+  height: 40px;
+  width: auto;
+  max-width: 44px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.4));
+  transition: transform 0.2s ease, filter 0.2s ease;
   flex-shrink: 0;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.brand-badge:hover .brand-logo-icon {
-  transform: translateY(-1.5px);
-  box-shadow: 3.5px 3.5px 0px #000000, 0 0 18px rgba(8, 102, 255, 0.6);
+.brand-badge:hover .brand-logo-img {
+  transform: scale(1.06);
+  filter: drop-shadow(0 0 14px rgba(0, 229, 255, 0.7));
 }
 
 .brand-title {
