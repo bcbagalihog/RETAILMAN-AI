@@ -14,9 +14,10 @@
   <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 
   <!-- Web App & Android APK Manifest & App Icons -->
-  <link rel="icon" type="image/png" href="/icon.png">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" href="/icon.png?v=5">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=5">
+  <link rel="shortcut icon" href="/favicon.ico?v=5">
+  <link rel="manifest" href="/manifest.json?v=5">
   <meta name="theme-color" content="#0866FF">
 
   <!-- Base Theme Styles -->
@@ -29,7 +30,7 @@
     <header id="app-header">
       <div class="header-left">
         <div class="brand-badge" style="cursor:pointer;" onclick="window.App.router.navigate('pos')">
-          <img src="/logo.png" class="brand-logo-img" alt="R.A.I. Logo">
+          <img src="/logo.png?v=5" style="height:32px!important; width:32px!important; max-height:32px!important; max-width:32px!important; object-fit:contain; border-radius:6px; flex-shrink:0;" alt="R.A.I. Logo">
           <span class="brand-title">RETAILMAN <span class="brand-ai">AI</span></span>
         </div>
         <div id="meta-sync-badge" class="meta-status-pill connected" onclick="window.App.router.navigate('metahub')">

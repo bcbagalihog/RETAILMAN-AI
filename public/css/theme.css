@@ -665,3 +665,13 @@ body.dark-theme {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+.brand-badge img {
+  height: 32px !important;
+  width: 32px !important;
+  max-height: 32px !important;
+  max-width: 32px !important;
+  object-fit: contain !important;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
