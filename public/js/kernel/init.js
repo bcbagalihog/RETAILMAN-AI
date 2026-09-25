@@ -35,27 +35,32 @@ window.App.init = async function() {
 /**
  * Refresh state from backend REST APIs
  */
+/**
+ * Refresh state from backend REST APIs
+ */
 window.App.refreshData = async function() {
-  const prodRes = await window.App.API.getProducts();
-  if (prodRes.success) {
-    window.App.state.products = prodRes.products;
-  }
+  try {
+    const prodRes = await window.App.API.getProducts();
+    if (prodRes && prodRes.success) window.App.state.products = prodRes.products || [];
+  } catch (e) { console.warn('Products fetch failed:', e); }
 
-  const invRes = await window.App.API.getInvoices();
-  if (invRes.success) {
-    window.App.state.invoices = invRes.invoices;
-  }
+  try {
+    const invRes = await window.App.API.getInvoices();
+    if (invRes && invRes.success) window.App.state.invoices = invRes.invoices || [];
+  } catch (e) { console.warn('Invoices fetch failed:', e); }
 
-  const metaRes = await window.App.API.getMetaStatus();
-  if (metaRes.success) {
-    window.App.state.metaCatalog = metaRes.catalogMeta || {};
-    window.App.state.socialPosts = metaRes.socialPosts || [];
-  }
+  try {
+    const metaRes = await window.App.API.getMetaStatus();
+    if (metaRes && metaRes.success) {
+      window.App.state.metaCatalog = metaRes.catalogMeta || {};
+      window.App.state.socialPosts = metaRes.socialPosts || [];
+    }
+  } catch (e) { console.warn('Meta status fetch failed:', e); }
 
-  const custRes = await window.App.API.getCustomers();
-  if (custRes.success) {
-    window.App.state.customers = custRes.customers || [];
-  }
+  try {
+    const custRes = await window.App.API.getCustomers();
+    if (custRes && custRes.success) window.App.state.customers = custRes.customers || [];
+  } catch (e) { console.warn('Customers fetch failed:', e); }
 };
 
 /**
@@ -143,24 +148,25 @@ window.App.openSettingsModal = async function() {
     `).join('');
 
     shopUsersHtml = `
-      <div style="background:rgba(8,102,255,0.08); border:2px solid #0866FF; padding:1rem; border-radius:12px; margin-top:1rem;">
-        <div style="font-weight:900; font-size:1rem; color:#00E5FF; margin-bottom:0.6rem;">
+      <div style="background:rgba(8,102,255,0.08); border:2px solid #0866FF; padding:0.9rem; border-radius:12px; margin-top:0.8rem; box-sizing:border-box; width:100%;">
+        <div style="font-weight:900; font-size:0.95rem; color:#00E5FF; margin-bottom:0.6rem;">
           <i class="ph-bold ph-users-three"></i> Multi-Shop Accounts & Cashiers (PRO Enabled)
         </div>
         
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
-          <input type="text" id="add-user-name" placeholder="Staff/Cashier Name" class="nb-input" style="padding:6px 10px; font-size:0.85rem;">
-          <input type="text" id="add-user-branch" placeholder="Shop Branch (e.g. Downtown Outlet)" class="nb-input" style="padding:6px 10px; font-size:0.85rem;">
+        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:8px; width:100%; box-sizing:border-box;">
+          <input type="text" id="add-user-name" placeholder="Staff/Cashier Name" class="nb-input" style="width:100%; box-sizing:border-box; padding:8px 10px; font-size:0.85rem;">
+          <input type="text" id="add-user-branch" placeholder="Shop Branch (e.g. Downtown Outlet)" class="nb-input" style="width:100%; box-sizing:border-box; padding:8px 10px; font-size:0.85rem;">
+          
+          <div style="display:flex; gap:8px; width:100%; box-sizing:border-box;">
+            <select id="add-user-role" class="nb-input" style="flex:1.2; box-sizing:border-box; padding:8px 6px; font-size:0.82rem; background:#18191a; color:#fff;">
+              <option value="Cashier">Role: Cashier</option>
+              <option value="Manager">Role: Manager</option>
+              <option value="Clerk">Role: Clerk</option>
+            </select>
+            <input type="password" id="add-user-pin" placeholder="Staff PIN (4 digits)" maxlength="4" class="nb-input" style="flex:0.8; box-sizing:border-box; padding:8px 6px; font-size:0.82rem;">
+          </div>
         </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
-          <select id="add-user-role" class="nb-input" style="padding:6px 10px; font-size:0.85rem; background:#18191a; color:#fff;">
-            <option value="Cashier">Role: Cashier</option>
-            <option value="Manager">Role: Store Manager</option>
-            <option value="Clerk">Role: Inventory Clerk</option>
-          </select>
-          <input type="password" id="add-user-pin" placeholder="Staff PIN (4 digits)" maxlength="4" class="nb-input" style="padding:6px 10px; font-size:0.85rem;">
-        </div>
-        <button class="nb-btn primary" style="width:100%; font-weight:900; font-size:0.85rem; padding:6px;" onclick="window.App.addShopUser()">
+        <button class="nb-btn primary" style="width:100%; font-weight:900; font-size:0.85rem; padding:8px; box-sizing:border-box;" onclick="window.App.addShopUser()">
           + Add Shop Account User
         </button>
 
@@ -190,20 +196,20 @@ window.App.openSettingsModal = async function() {
   }
 
   const html = `
-    <div style="display:flex; flex-direction:column; gap:12px;">
-      <div>
+    <div style="display:flex; flex-direction:column; gap:12px; width:100%; box-sizing:border-box;">
+      <div style="width:100%; box-sizing:border-box;">
         <label style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">Facebook Page / Seller Store Name (Used on Receipts & Posts):</label>
-        <input type="text" id="settings-store-name" value="${currentSellerName}" style="width:100%; margin-top:4px; padding:10px; background:var(--bg-input); border:2px solid var(--border-color); color:#FFF; border-radius:8px; font-weight:bold;">
+        <input type="text" id="settings-store-name" value="${currentSellerName}" style="width:100%; box-sizing:border-box; margin-top:4px; padding:10px; background:var(--bg-input); border:2px solid var(--border-color); color:#FFF; border-radius:8px; font-weight:bold;">
       </div>
 
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-        <div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; width:100%; box-sizing:border-box;">
+        <div style="box-sizing:border-box;">
           <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">Active Cashier Name</label>
-          <input type="text" id="settings-cashier-name" value="${window.App.state.cashier}" style="width:100%; padding:8px; background:var(--bg-input); border:2px solid var(--border-color); color:#FFF; border-radius:8px; font-weight:bold;">
+          <input type="text" id="settings-cashier-name" value="${window.App.state.cashier}" style="width:100%; box-sizing:border-box; padding:8px; background:var(--bg-input); border:2px solid var(--border-color); color:#FFF; border-radius:8px; font-weight:bold;">
         </div>
-        <div>
+        <div style="box-sizing:border-box;">
           <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">Staff Unlock PIN</label>
-          <input type="password" id="settings-cashier-pin" value="${window.App.state.cashierPin}" maxlength="4" style="width:100%; padding:8px; background:var(--bg-input); border:2px solid var(--border-color); color:#FFF; border-radius:8px; font-family:var(--font-mono); text-align:center;">
+          <input type="password" id="settings-cashier-pin" value="${window.App.state.cashierPin}" maxlength="4" style="width:100%; box-sizing:border-box; padding:8px; background:var(--bg-input); border:2px solid var(--border-color); color:#FFF; border-radius:8px; font-family:var(--font-mono); text-align:center;">
         </div>
       </div>
 

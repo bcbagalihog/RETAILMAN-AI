@@ -17,7 +17,13 @@ window.App.API = {
     options.headers = this.getHeaders(options.headers || {});
     try {
       const res = await fetch(url, options);
-      const data = await res.json();
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (_) {
+        return { success: false, message: 'Invalid JSON response from server' };
+      }
 
       if (res.status === 402 || (data && data.upgrade_required)) {
         if (window.App.Subscription) {

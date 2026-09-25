@@ -28,10 +28,10 @@
         const used = sub ? (sub.monthlyInvoicesUsed || 0) : 0;
         const limit = sub ? (sub.invoiceLimit || 50) : 50;
         pill.className = 'sub-badge-pill trial';
-        pill.innerHTML = `<i class="ph-bold ph-storefront"></i> Free Plan (` + used + `/` + limit + ` Sales)`;
+        pill.innerHTML = `<i class="ph-bold ph-storefront"></i> Free<span class="badge-full-text"> Plan (${used}/${limit})</span>`;
       } else if (sub.plan === 'pro') {
         pill.className = 'sub-badge-pill pro';
-        pill.innerHTML = `<i class="ph-bold ph-crown"></i> PRO Plan Active`;
+        pill.innerHTML = `<i class="ph-bold ph-crown"></i> PRO<span class="badge-full-text"> Plan Active</span>`;
       } else {
         pill.className = 'sub-badge-pill enterprise';
         pill.innerHTML = `<i class="ph-bold ph-sparkle"></i> Enterprise`;
@@ -123,10 +123,12 @@
       try {
         const res = await window.App.api.post('/api/subscription/upgrade', { plan: 'pro' });
         if (res && res.success) {
-          if (window.App.showNotification) window.App.showNotification('🎉 Upgraded to PRO Plan! Unlimited features unlocked.', 'success');
+          if (window.App.toast) window.App.toast('🎉 Upgraded to PRO Plan! Unlimited features unlocked.', 'success');
           this.fetchStatus();
+          if (window.App.Tokens) window.App.Tokens.fetchBalance();
           this.closeModal();
           if (window.App.auth) window.App.auth.fetchProfile();
+          if (window.App.router) window.App.router.navigate(window.App.state.activeTab || 'pos');
         } else {
           alert(res.message || 'Upgrade failed.');
         }

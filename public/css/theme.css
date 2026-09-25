@@ -877,9 +877,49 @@ body.dark-theme {
 
 @media (max-width: 640px) {
   #app-header {
-    padding: 0 0.5rem !important;
+    padding: 0 0.4rem !important;
+    gap: 0.3rem !important;
   }
+
+  .header-left {
+    gap: 0.25rem !important;
+    flex-shrink: 0;
+  }
+
+  .header-right {
+    gap: 0.3rem !important;
+    flex-shrink: 1;
+  }
+
+  .brand-title {
+    font-size: 0.95rem !important;
+  }
+
+  .brand-logo-img {
+    height: 26px !important;
+    width: 26px !important;
+    max-height: 26px !important;
+    max-width: 26px !important;
+    min-height: 26px !important;
+    min-width: 26px !important;
+  }
+
+  .brand-ai {
+    padding: 1px 4px !important;
+    font-size: 0.7rem !important;
+    margin-left: 3px !important;
+    height: 20px !important;
+  }
+
   .sub-badge-pill, .auth-chip, .settings-chip, .token-chip {
-    padding: 0 8px !important;
+    padding: 0 6px !important;
+    font-size: 0.72rem !important;
+    gap: 0.25rem !important;
+    white-space: nowrap !important;
+    flex-shrink: 0;
+  }
+
+  .badge-full-text {
+    display: none !important;
   }
 }

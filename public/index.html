@@ -18,10 +18,8 @@
   <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=5">
   <link rel="shortcut icon" href="/favicon.ico?v=5">
   <link rel="manifest" href="/manifest.js?v=17on?v=5">
-  <meta name="theme-color" content="#0866FF">
-
-  <!-- Base Theme Styles -->
-  <link rel="stylesheet" href="/css/theme.css?v=17">
+  <meta name="theme-color" content="#0866FF">  <!-- Base Theme Styles -->
+  <link rel="stylesheet" href="/css/theme.css?v=19">
 </head>
 <body class="dark-theme">
 
@@ -37,7 +35,7 @@
 
       <div class="header-right" style="display:flex; align-items:center; gap:0.5rem;">
         <div id="token-chip" class="token-chip" onclick="window.App.Tokens.openStoreModal()" title="Pay-As-You-Go Token Store">
-          🪙 <span id="header-token-count">50</span> Tokens
+          🪙 <span id="header-token-count">50</span><span class="badge-full-text"> Tokens</span>
         </div>
 
         <div id="sub-tier-badge" class="sub-badge-pill trial" onclick="window.App.Subscription.openModal()" title="Subscription Plan & Usage">
@@ -121,19 +119,19 @@
   </div>
 
   <!-- Kernel Engine & Module Scripts -->
-  <script src="/js/kernel/api.js?v=17"></script>
-  <script src="/js/kernel/auth.js?v=17"></script>
-  <script src="/js/kernel/init.js?v=17"></script>
-  <script src="/js/kernel/router.js?v=17"></script>
+  <script src="/js/kernel/api.js?v=19"></script>
+  <script src="/js/kernel/auth.js?v=19"></script>
+  <script src="/js/kernel/init.js?v=19"></script>
+  <script src="/js/kernel/router.js?v=19"></script>
   
   <!-- Subsystem Modules -->
-  <script src="/js/modules/pos.js?v=18"></script>
-  <script src="/js/modules/inventory.js?v=18"></script>
-  <script src="/js/modules/metahub.js?v=18"></script>
-  <script src="/js/modules/billing.js?v=18"></script>
-  <script src="/js/modules/customers.js?v=18"></script>
-  <script src="/js/modules/subscription.js?v=18"></script>
-  <script src="/js/modules/tokens.js?v=18"></script>
+  <script src="/js/modules/pos.js?v=19"></script>
+  <script src="/js/modules/inventory.js?v=19"></script>
+  <script src="/js/modules/metahub.js?v=19"></script>
+  <script src="/js/modules/billing.js?v=19"></script>
+  <script src="/js/modules/customers.js?v=19"></script>
+  <script src="/js/modules/subscription.js?v=19"></script>
+  <script src="/js/modules/tokens.js?v=19"></script>
 
   <!-- App Bootstrap -->
   <script>

@@ -185,6 +185,12 @@ const server = http.createServer(async (req, res) => {
   }
 
   
+  if (method === "GET" && (pathname === "/api/meta/catalog" || pathname === "/api/meta/status")) {
+    const catalogMeta = await readJSON("meta_catalog.json", { page_name: "RetailMan Official Store", catalog_id: "cat_default" }, tenantId);
+    const socialPosts = await readJSON("social_posts.json", [], tenantId);
+    return sendJSON(res, { success: true, catalogMeta, socialPosts });
+  }
+
   if (method === "POST" && (pathname === "/api/meta/toggle-sync" || pathname === "/api/products/toggle-active")) {
     try {
       const { product_id, id, fb_sync, is_active } = await getRequestBody(req);
