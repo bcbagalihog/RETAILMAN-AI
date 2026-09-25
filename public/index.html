@@ -28,9 +28,11 @@
     <!-- Top Mobile & Desktop Navigation Header -->
     <header id="app-header">
       <div class="header-left">
-        <div class="brand-badge">
-          <img src="/icon.png" style="width:30px; height:30px; border-radius:8px; border:1.5px solid var(--fb-blue); object-fit:cover;" alt="R.A.I. App Icon">
-          <span class="brand-title">RETAILMAN<span class="brand-ai">AI</span></span>
+        <div class="brand-badge" style="cursor:pointer;" onclick="window.App.router.navigate('pos')">
+          <div class="brand-logo-icon">
+            <i class="ph-bold ph-storefront"></i>
+          </div>
+          <span class="brand-title">RETAILMAN <span class="brand-ai">AI</span></span>
         </div>
         <div id="meta-sync-badge" class="meta-status-pill connected" onclick="window.App.router.navigate('metahub')">
           <span class="pulse-dot"></span>
