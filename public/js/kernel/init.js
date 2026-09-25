@@ -6,7 +6,7 @@ window.App = window.App || {};
 // Central Global Application State
 window.App.state = {
   activeTab: 'pos',
-  cashier: 'Ben (Manager)',
+  cashier: 'Store Cashier',
   cashierPin: '1234',
   cart: [], // [{ id, name, price, qty, image }]
   products: [],
@@ -150,7 +150,7 @@ window.App.openSettingsModal = async function() {
         
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
           <input type="text" id="add-user-name" placeholder="Staff/Cashier Name" class="nb-input" style="padding:6px 10px; font-size:0.85rem;">
-          <input type="text" id="add-user-branch" placeholder="Shop Branch (e.g. Bonifacio)" class="nb-input" style="padding:6px 10px; font-size:0.85rem;">
+          <input type="text" id="add-user-branch" placeholder="Shop Branch (e.g. Downtown Outlet)" class="nb-input" style="padding:6px 10px; font-size:0.85rem;">
         </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
           <select id="add-user-role" class="nb-input" style="padding:6px 10px; font-size:0.85rem; background:#18191a; color:#fff;">
@@ -177,7 +177,7 @@ window.App.openSettingsModal = async function() {
           <i class="ph-bold ph-users-three"></i> Multi-Shop & Multi-Cashier Accounts
         </div>
         <div style="font-size:0.82rem; color:#aaa; margin-bottom:0.6rem;">
-          Add multiple cashier & staff accounts for different shop outlets (Bonifacio, Batangas, etc.).
+          Add multiple cashier & staff accounts for different shop outlets (Downtown Outlet, Suburban Outlet, etc.).
         </div>
         <div style="display:inline-block; background:rgba(255,230,0,0.15); color:#FFE600; border:1px solid #FFE600; padding:2px 8px; border-radius:6px; font-weight:800; font-size:0.75rem; margin-bottom:0.8rem;">
           REQUIRES PRO SUBSCRIPTION

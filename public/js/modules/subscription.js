@@ -24,11 +24,11 @@
       const pill = document.getElementById('sub-tier-badge');
       if (!pill) return;
 
-      if (!sub || sub.plan === 'free_trial') {
+      if (!sub || sub.plan === 'free_trial' || sub.plan === 'free_plan') {
         const used = sub ? (sub.monthlyInvoicesUsed || 0) : 0;
         const limit = sub ? (sub.invoiceLimit || 50) : 50;
         pill.className = 'sub-badge-pill trial';
-        pill.innerHTML = `<i class="ph-bold ph-clock"></i> Free Trial (` + used + `/` + limit + ` Sales)`;
+        pill.innerHTML = `<i class="ph-bold ph-storefront"></i> Free Plan (` + used + `/` + limit + ` Sales)`;
       } else if (sub.plan === 'pro') {
         pill.className = 'sub-badge-pill pro';
         pill.innerHTML = `<i class="ph-bold ph-crown"></i> PRO Plan Active`;
@@ -47,7 +47,7 @@
         document.body.appendChild(modal);
       }
 
-      let sub = { plan: 'free_trial', monthlyInvoicesUsed: 0, invoiceLimit: 50 };
+      let sub = { plan: 'free_plan', monthlyInvoicesUsed: 0, invoiceLimit: 50 };
       try {
         const res = await window.App.api.get('/api/subscription/status');
         if (res && res.subscription) sub = res.subscription;
@@ -68,19 +68,19 @@
           </div>
 
           <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:1.2rem; margin-bottom:1.5rem;">
-            <!-- Free Trial Plan Card -->
+            <!-- Permanent Free Plan Card -->
             <div style="background:rgba(255,255,255,0.03); border:2px solid ` + (!isPro ? '#00E5FF' : '#333') + `; border-radius:14px; padding:1.2rem; display:flex; flex-direction:column; justify-content:space-between;">
               <div>
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-                  <span style="font-weight:900; font-size:1.1rem; color:#fff;">14-Day Free Trial</span>
-                  ` + (!isPro ? '<span style="background:#00E5FF; color:#000; font-weight:900; font-size:0.7rem; padding:2px 6px; border-radius:4px;">CURRENT</span>' : '') + `
+                  <span style="font-weight:900; font-size:1.1rem; color:#fff;">Permanent Free Plan</span>
+                  ` + (!isPro ? '<span style="background:#00E5FF; color:#000; font-weight:900; font-size:0.7rem; padding:2px 6px; border-radius:4px;">ACTIVE</span>' : '') + `
                 </div>
-                <div style="font-size:1.5rem; font-weight:900; color:#fff; margin-bottom:0.8rem;">₱0 <span style="font-size:0.8rem; color:#888; font-weight:normal;">/ 14 Days</span></div>
+                <div style="font-size:1.5rem; font-weight:900; color:#fff; margin-bottom:0.8rem;">₱0 <span style="font-size:0.8rem; color:#888; font-weight:normal;">/ forever</span></div>
                 
                 <ul style="list-style:none; padding:0; margin:0 0 1rem 0; font-size:0.85rem; color:#bbb; display:grid; gap:0.5rem;">
-                  <li><i class="ph-bold ph-check-circle" style="color:#00E5FF;"></i> Up to 50 Monthly Invoices</li>
+                  <li><i class="ph-bold ph-check-circle" style="color:#00E5FF;"></i> 50 Monthly Sales Invoices</li>
                   <li><i class="ph-bold ph-check-circle" style="color:#00E5FF;"></i> 1 Facebook Page Sync</li>
-                  <li><i class="ph-bold ph-check-circle" style="color:#00E5FF;"></i> Basic Inventory & POS</li>
+                  <li><i class="ph-bold ph-check-circle" style="color:#00E5FF;"></i> POS & Stock Inventory</li>
                 </ul>
               </div>
               <button disabled class="nb-btn outline" style="width:100%; opacity:0.6;">` + (!isPro ? 'Active Plan' : 'Free Plan') + `</button>
@@ -98,9 +98,9 @@
                 <ul style="list-style:none; padding:0; margin:0 0 1.2rem 0; font-size:0.85rem; color:#eee; display:grid; gap:0.6rem;">
                   <li><i class="ph-bold ph-check-circle" style="color:#00E5FF;"></i> <strong>UNLIMITED</strong> Sales & Invoices</li>
                   <li><i class="ph-bold ph-check-circle" style="color:#00E5FF;"></i> <strong>UNLIMITED</strong> Facebook Pages</li>
-                  <li><i class="ph-bold ph-check-circle" style="color:#00E5FF;"></i> Auto Messenger Digital Receipts</li>
-                  <li><i class="ph-bold ph-check-circle" style="color:#00E5FF;"></i> Multi-Branch Financial Exports</li>
-                  <li><i class="ph-bold ph-check-circle" style="color:#00E5FF;"></i> Google Play In-App Billing</li>
+                  <li><i class="ph-bold ph-check-circle" style="color:#00E5FF;"></i> Multi-Shop Staff Accounts</li>
+                  <li><i class="ph-bold ph-check-circle" style="color:#00E5FF;"></i> Auto Messenger Receipts</li>
+                  <li><i class="ph-bold ph-check-circle" style="color:#00E5FF;"></i> Financial Ledger Export</li>
                 </ul>
               </div>
 
@@ -111,7 +111,7 @@
           </div>
 
           <div style="text-align:center; font-size:0.8rem; color:#777;">
-            Secured by Google Play Billing & PayMongo / Xendit 256-Bit Encrypted Payment Processing.
+            Secured by Google Play In-App Billing & 256-Bit Encrypted Payment Processing.
           </div>
         </div>
       `;

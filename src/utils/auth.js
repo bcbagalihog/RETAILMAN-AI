@@ -106,9 +106,9 @@ async function registerTenant(email, password, storeName) {
     storeName: storeName || "My Retail Store",
     createdAt: now.toISOString(),
     subscription: {
-      plan: "free_trial",
+      plan: "free_plan",
       status: "active",
-      trialEndsAt: trialEndDate.toISOString(),
+      
       invoiceLimit: 50,
       monthlyInvoicesUsed: 0,
       updatedAt: now.toISOString()
