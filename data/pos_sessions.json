@@ -1,0 +1,10 @@
+[
+  {
+    "session_id": "pos_sess_001",
+    "opened_at": "2026-09-25T08:00:00Z",
+    "cashier": "Ben (Manager)",
+    "starting_cash": 2000,
+    "total_sales": 0,
+    "status": "OPEN"
+  }
+]

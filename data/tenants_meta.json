@@ -1,0 +1,13 @@
+{
+  "tenant_id": "tenant_default",
+  "store_name": "RetailMan Official Store",
+  "facebook_connected": true,
+  "facebook_user": "Ben Store Manager",
+  "page_id": "109823409823094",
+  "access_token": "EAAX_MOCK_FB_PAGE_ACCESS_TOKEN_RETAILMAN_AI",
+  "albums": [
+    "Official Store Catalog",
+    "New Stock Arrivals 2026",
+    "Flash Sale Promo"
+  ]
+}

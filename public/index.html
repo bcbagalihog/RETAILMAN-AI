@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>RETAILMAN AI — Facebook Social Commerce ERP</title>
+
+  <!-- Google Fonts: Inter, Outfit, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Phosphor Icons Bold -->
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+
+  <!-- Web App & Android APK Manifest & App Icons -->
+  <link rel="icon" type="image/png" href="/icon.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0866FF">
+
+  <!-- Base Theme Styles -->
+  <link rel="stylesheet" href="/css/theme.css">
+</head>
+<body class="dark-theme">
+
+  <div id="app-root">
+    <!-- Top Mobile & Desktop Navigation Header -->
+    <header id="app-header">
+      <div class="header-left">
+        <div class="brand-badge">
+          <img src="/icon.png" style="width:30px; height:30px; border-radius:8px; border:1.5px solid var(--fb-blue); object-fit:cover;" alt="R.A.I. App Icon">
+          <span class="brand-title">RETAILMAN<span class="brand-ai">AI</span></span>
+        </div>
+        <div id="meta-sync-badge" class="meta-status-pill connected" onclick="window.App.router.navigate('metahub')">
+          <span class="pulse-dot"></span>
+          <span class="meta-pill-text"><i class="ph-bold ph-facebook-logo"></i> Meta Live</span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- Store Settings & Cashier Controls -->
+        <button class="settings-chip" onclick="window.App.openSettingsModal()" title="Store & App Settings">
+          <i class="ph-bold ph-gear"></i>
+          <span>Settings</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Container (Dynamic View Switching) -->
+    <main id="main-content">
+      <div class="loading-spinner-container">
+        <div class="spinner"></div>
+        <p>Loading RETAILMAN AI Engine...</p>
+      </div>
+    </main>
+
+    <!-- Bottom Sticky Dock (Cart Floating Summary for POS Mode) -->
+    <div id="pos-sticky-dock" class="pos-cart-dock hidden">
+      <div class="dock-cart-info">
+        <button class="dock-clear-btn" title="Cancel & Clear Cart" onclick="window.App.POS.clearCart()">
+          <i class="ph-bold ph-trash"></i>
+        </button>
+        <div class="dock-text">
+          <span class="dock-title">Cart (<span id="dock-cart-count">0</span> items)</span>
+          <span class="dock-price" id="dock-cart-total">₱0.00</span>
+        </div>
+      </div>
+      <button class="btn-primary-blue dock-checkout-btn" onclick="window.App.POS.openCheckoutModal()">
+        <span>Checkout</span>
+        <i class="ph-bold ph-arrow-right"></i>
+      </button>
+    </div>
+
+    <!-- Phone & Tablet Bottom Navigation Bar -->
+    <nav id="bottom-nav">
+      <button class="nav-tab active" data-tab="pos" onclick="window.App.router.navigate('pos')">
+        <i class="ph-bold ph-storefront"></i>
+        <span>POS</span>
+      </button>
+      <button class="nav-tab" data-tab="inventory" onclick="window.App.router.navigate('inventory')">
+        <i class="ph-bold ph-package"></i>
+        <span>Inventory</span>
+      </button>
+      <button class="nav-tab" data-tab="metahub" onclick="window.App.router.navigate('metahub')">
+        <i class="ph-bold ph-infinity"></i>
+        <span>Meta Hub</span>
+      </button>
+      <button class="nav-tab" data-tab="billing" onclick="window.App.router.navigate('billing')">
+        <i class="ph-bold ph-receipt"></i>
+        <span>Billing</span>
+      </button>
+      <button class="nav-tab" data-tab="customers" onclick="window.App.router.navigate('customers')">
+        <i class="ph-bold ph-users-three"></i>
+        <span>Customers</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Global Modal Container -->
+  <div id="modal-overlay" class="modal-overlay hidden" onclick="window.App.closeModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="modal-title">Modal Title</h3>
+        <button class="modal-close-btn" onclick="window.App.closeModal()"><i class="ph-bold ph-x"></i></button>
+      </div>
+      <div id="modal-body" class="modal-body">
+        <!-- Dynamic Modal Content -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Kernel Engine & Module Scripts -->
+  <script src="/js/kernel/api.js"></script>
+  <script src="/js/kernel/init.js"></script>
+  <script src="/js/kernel/router.js"></script>
+  
+  <!-- Subsystem Modules -->
+  <script src="/js/modules/pos.js"></script>
+  <script src="/js/modules/inventory.js"></script>
+  <script src="/js/modules/metahub.js"></script>
+  <script src="/js/modules/billing.js"></script>
+  <script src="/js/modules/customers.js"></script>
+
+  <!-- App Bootstrap -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      window.App.init();
+    });
+  </script>
+</body>
+</html>

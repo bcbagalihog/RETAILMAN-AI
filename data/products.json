@@ -1,0 +1,50 @@
+[
+  {
+    "id": "prod_001",
+    "sku": "SKU-HD-001",
+    "barcode": "88001001",
+    "name": "Graphic Sunset Hoodie",
+    "category": "Apparel",
+    "cost_price": 450,
+    "retail_price": 850,
+    "stock_qty": 25,
+    "min_stock": 5,
+    "fb_sync": true,
+    "images": [
+      "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=600&q=80"
+    ],
+    "description": "Premium fleece heavy-blend sunset graphic hoodie."
+  },
+  {
+    "id": "prod_002",
+    "sku": "SKU-BP-002",
+    "barcode": "88001002",
+    "name": "Urban Stealth Backpack",
+    "category": "Accessories",
+    "cost_price": 800,
+    "retail_price": 1450,
+    "stock_qty": 14,
+    "min_stock": 4,
+    "fb_sync": true,
+    "images": [
+      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80"
+    ],
+    "description": "Waterproof laptop compartment urban stealth street backpack."
+  },
+  {
+    "id": "prod_003",
+    "sku": "SKU-WT-003",
+    "barcode": "88001003",
+    "name": "Classic Leather Analog Watch",
+    "category": "Gadgets",
+    "cost_price": 1100,
+    "retail_price": 1950,
+    "stock_qty": 8,
+    "min_stock": 3,
+    "fb_sync": true,
+    "images": [
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80"
+    ],
+    "description": "Genuine leather strap analog quartz minimalist wristwatch."
+  }
+]
