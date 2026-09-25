@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RETAILMAN AI — Facebook Social Commerce POS & Inventory Platform</title>
+
+  <!-- Google Fonts & Phosphor Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <link rel="stylesheet" href="/css/theme.css?v=19">
+
+  <style>
+    body { background-color: #0B0E14; color: #FFF; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .hero-wrap { max-width: 1100px; margin: 0 auto; padding: 4rem 1.5rem; text-align: center; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(8, 102, 255, 0.15); border: 2px solid #0866FF; color: #00E5FF; padding: 6px 16px; border-radius: 30px; font-weight: 800; font-size: 0.85rem; margin-bottom: 1.5rem; }
+    .hero-title { font-family: 'Outfit', sans-serif; font-size: 3.2rem; font-weight: 950; line-height: 1.1; margin-bottom: 1.2rem; }
+    .hero-title span { color: #00E5FF; background: linear-gradient(135deg, #0866FF, #00E5FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-sub { font-size: 1.15rem; color: #A0AEC0; max-width: 720px; margin: 0 auto 2.5rem auto; line-height: 1.6; }
+    
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; max-width: 1100px; margin: 0 auto 4rem auto; padding: 0 1.5rem; }
+    .feature-card { background: #151A23; border: 3px solid #2D3748; padding: 1.8rem; border-radius: 16px; box-shadow: 6px 6px 0px #000; text-align: left; }
+    .feature-icon { font-size: 2.2rem; color: #00E5FF; margin-bottom: 1rem; }
+    
+    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; max-width: 1000px; margin: 0 auto 5rem auto; padding: 0 1.5rem; }
+    .pricing-card { background: #1C2331; border: 3px solid #000; box-shadow: 6px 6px 0px #000; padding: 2rem; border-radius: 18px; display: flex; flex-direction: column; justify-content: space-between; text-align: left; }
+  </style>
+</head>
+<body class="dark-theme">
+
+  <!-- Public Header -->
+  <header id="app-header">
+    <div class="header-left">
+      <div class="brand-badge">
+        <img src="/logo.png?v=5" style="height:32px; width:32px;" alt="Logo">
+        <span class="brand-title">RETAILMAN <span class="brand-ai">AI</span></span>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="nb-btn outline" onclick="window.location.href='/'" style="padding:6px 14px; font-size:0.85rem;">
+        🚀 Demo Mode
+      </button>
+      <button class="nb-btn primary" onclick="AppLanding.openAuth('login')" style="padding:6px 14px; font-size:0.85rem;">
+        <i class="ph-bold ph-sign-in"></i> Merchant Login
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-wrap">
+    <div class="hero-badge">
+      <i class="ph-bold ph-lightning"></i> Social Commerce ERP Built for Facebook Merchants
+    </div>
+    <h1 class="hero-title">
+      Turn Facebook Messages into <span>Instant Paid POS Sales</span>
+    </h1>
+    <p class="hero-sub">
+      RETAILMAN AI is the all-in-one POS & Multi-Tenant Inventory engine. Track stock levels, generate barcode invoices, dispatch digital Facebook Messenger receipts, and automate social store posts.
+    </p>
+
+    <div style="display:flex; justify-content:center; gap:1rem; flex-wrap:wrap;">
+      <button class="nb-btn primary" style="font-size:1.1rem; padding:14px 28px; font-weight:900;" onclick="AppLanding.openAuth('register')">
+        <i class="ph-bold ph-rocket-launch"></i> Start Free Account (50 Invoices)
+      </button>
+      <button class="nb-btn outline" style="font-size:1.1rem; padding:14px 28px; font-weight:900;" onclick="window.location.href='/'">
+        <i class="ph-bold ph-play"></i> Launch Demo POS
+      </button>
+    </div>
+  </section>
+
+  <!-- Feature Grid -->
+  <section class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon"><i class="ph-bold ph-storefront"></i></div>
+      <h3 style="font-size:1.2rem; font-weight:900; margin-bottom:0.5rem;">Mobile POS & Barcode Scanner</h3>
+      <p style="font-size:0.9rem; color:#A0AEC0;">Process retail sales instantly on your phone or laptop. Supports barcode scanning, cashiers, and stock deduction.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="ph-bold ph-messenger-logo"></i></div>
+      <h3 style="font-size:1.2rem; font-weight:900; margin-bottom:0.5rem;">Facebook Messenger Receipts</h3>
+      <p style="font-size:0.9rem; color:#A0AEC0;">Dispatch formatted digital receipts directly into Facebook Messenger or download printable PNG receipt files.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="ph-bold ph-users-three"></i></div>
+      <h3 style="font-size:1.2rem; font-weight:900; margin-bottom:0.5rem;">Multi-Shop Cashier Outlets</h3>
+      <p style="font-size:0.9rem; color:#A0AEC0;">Add multiple staff & cashier PIN accounts across different shop branches (PRO plan enabled).</p>
+    </div>
+  </section>
+
+  <!-- Pricing Cards -->
+  <div style="text-align:center; margin-bottom:2rem;">
+    <h2 style="font-family:'Outfit'; font-size:2.2rem; font-weight:900; margin-bottom:0.5rem;">Simple, Transparent Pricing</h2>
+    <p style="color:#888;">No hidden fees. Upgrade or top up tokens whenever your store grows.</p>
+  </div>
+
+  <section class="pricing-grid">
+    <!-- Free Plan -->
+    <div class="pricing-card">
+      <div>
+        <h3 style="font-size:1.3rem; font-weight:900; margin-bottom:0.5rem;">Permanent Free Plan</h3>
+        <div style="font-size:2rem; font-weight:900; color:#00E5FF; margin-bottom:1rem;">₱0 <span style="font-size:0.85rem; color:#888;">/ forever</span></div>
+        <ul style="list-style:none; padding:0; display:grid; gap:0.6rem; font-size:0.9rem; color:#ccc;">
+          <li>✔️ 50 Monthly Sales Invoices</li>
+          <li>✔️ 1 Store Outlet & Cashier</li>
+          <li>✔️ Basic POS & Stock Inventory</li>
+        </ul>
+      </div>
+      <button class="nb-btn outline" style="width:100%; font-weight:900; margin-top:1.5rem;" onclick="AppLanding.openAuth('register')">
+        Create Free Account
+      </button>
+    </div>
+
+    <!-- Starter Pack -->
+    <div class="pricing-card">
+      <div>
+        <h3 style="font-size:1.3rem; font-weight:900; margin-bottom:0.5rem;">Starter Token Pack</h3>
+        <div style="font-size:2rem; font-weight:900; color:#00E5FF; margin-bottom:1rem;">₱99 <span style="font-size:0.85rem; color:#888;">one-time</span></div>
+        <ul style="list-style:none; padding:0; display:grid; gap:0.6rem; font-size:0.9rem; color:#ccc;">
+          <li>🪙 <strong>500 Tokens</strong></li>
+          <li>✔️ GCash / Maya Instant Delivery</li>
+          <li>✔️ Tokens Never Expire</li>
+        </ul>
+      </div>
+      <button class="nb-btn outline" style="width:100%; font-weight:900; margin-top:1.5rem;" onclick="AppLanding.openAuth('login')">
+        Buy 500 Tokens (₱99)
+      </button>
+    </div>
+
+    <!-- PRO Plan -->
+    <div class="pricing-card" style="border-color:#0866FF; background:linear-gradient(135deg, rgba(8,102,255,0.2) 0%, rgba(0,229,255,0.1) 100%);">
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+          <h3 style="font-size:1.3rem; font-weight:900; color:#00E5FF;">👑 PRO Plan</h3>
+          <span style="background:#0866FF; color:#fff; font-weight:900; font-size:0.7rem; padding:2px 6px; border-radius:4px;">UNLIMITED</span>
+        </div>
+        <div style="font-size:2rem; font-weight:900; color:#fff; margin-bottom:1rem;">₱499 <span style="font-size:0.85rem; color:#aaa;">/ month</span></div>
+        <ul style="list-style:none; padding:0; display:grid; gap:0.6rem; font-size:0.9rem; color:#eee;">
+          <li>👑 <strong>UNLIMITED</strong> Sales & Invoices</li>
+          <li>👑 <strong>UNLIMITED</strong> Tokens</li>
+          <li>👑 Multi-Shop Cashier Accounts</li>
+          <li>👑 Messenger Auto Receipts</li>
+        </ul>
+      </div>
+      <button class="nb-btn primary" style="width:100%; font-weight:900; margin-top:1.5rem;" onclick="AppLanding.openAuth('register')">
+        Upgrade to PRO (₱499/mo)
+      </button>
+    </div>
+  </section>
+
+  <!-- Auth Modal -->
+  <div id="auth-modal" class="modal-overlay" style="display:none;" onclick="AppLanding.closeAuth(event)">
+    <div class="modal-card nb-card" style="max-width:440px;" onclick="event.stopPropagation()">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+        <h3 id="auth-title" style="margin:0; font-family:var(--font-heading); font-weight:900; font-size:1.4rem;">Merchant Login</h3>
+        <button onclick="AppLanding.closeAuth()" style="background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+
+      <button type="button" onclick="AppLanding.loginWithFacebook()" class="nb-btn" style="width:100%; height:48px; background:#1877F2; color:#fff; font-weight:800; font-size:1rem; display:flex; align-items:center; justify-content:center; gap:0.6rem; border:2px solid #000; box-shadow:2.5px 2.5px 0px #000; border-radius:10px; margin-bottom:1.2rem;">
+        <i class="ph-bold ph-facebook-logo" style="font-size:1.3rem;"></i> Log in with Facebook
+      </button>
+
+      <form id="auth-form" onsubmit="event.preventDefault(); AppLanding.handleAuthSubmit();">
+        <div id="field-store-name" style="margin-bottom:1.2rem; display:none;">
+          <label style="display:block; font-size:0.85rem; font-weight:800; color:#aaa; margin-bottom:0.4rem;">STORE NAME</label>
+          <input type="text" id="landing-store-name" class="nb-input" placeholder="e.g. Manila Retail Store" style="width:100%; height:48px; padding:12px 14px; font-size:1rem; border-radius:10px;">
+        </div>
+
+        <div style="margin-bottom:1.2rem;">
+          <label style="display:block; font-size:0.85rem; font-weight:800; color:#aaa; margin-bottom:0.4rem;">EMAIL ADDRESS</label>
+          <input type="email" id="landing-email" class="nb-input" placeholder="merchant@store.com" required style="width:100%; height:48px; padding:12px 14px; font-size:1rem; border-radius:10px;">
+        </div>
+
+        <div style="margin-bottom:1.5rem;">
+          <label style="display:block; font-size:0.85rem; font-weight:800; color:#aaa; margin-bottom:0.4rem;">PASSWORD</label>
+          <input type="password" id="landing-password" class="nb-input" placeholder="••••••••" required style="width:100%; height:48px; padding:12px 14px; font-size:1rem; border-radius:10px;">
+        </div>
+
+        <button type="submit" id="auth-submit-btn" class="nb-btn primary" style="width:100%; height:48px; font-weight:900; font-size:1.05rem; padding:0.8rem; border-radius:10px; margin-bottom:1rem;">
+          Log In with Email
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/kernel/api.js?v=19"></script>
+  <script>
+    const AppLanding = {
+      mode: 'login',
+
+      openAuth(mode = 'login') {
+        this.mode = mode;
+        const isLogin = mode === 'login';
+        document.getElementById('auth-title').innerHTML = isLogin ? '<i class="ph-bold ph-lock-key"></i> Merchant Login' : '<i class="ph-bold ph-user-plus"></i> Create Free Store Account';
+        document.getElementById('field-store-name').style.display = isLogin ? 'none' : 'block';
+        document.getElementById('auth-submit-btn').innerText = isLogin ? 'Log In with Email' : 'Create Free Store Account';
+        document.getElementById('auth-modal').style.display = 'flex';
+      },
+
+      closeAuth(e) {
+        if (e && e.target !== document.getElementById('auth-modal')) return;
+        document.getElementById('auth-modal').style.display = 'none';
+      },
+
+      async handleAuthSubmit() {
+        const email = document.getElementById('landing-email').value;
+        const pass = document.getElementById('landing-password').value;
+        const store = document.getElementById('landing-store-name').value;
+
+        const endpoint = this.mode === 'login' ? '/api/auth/login' : '/api/auth/register';
+        const payload = this.mode === 'login' ? { email, password: pass } : { email, password: pass, storeName: store };
+
+        try {
+          const res = await window.App.api.post(endpoint, payload);
+          if (res && res.success && res.token) {
+            localStorage.setItem('retailman_jwt_token', res.token);
+            localStorage.setItem('retailman_user_profile', JSON.stringify(res.user));
+            window.location.href = '/';
+          } else {
+            alert(res.message || 'Authentication failed.');
+          }
+        } catch (err) {
+          alert('Error: ' + err.message);
+        }
+      },
+
+      async loginWithFacebook() {
+        try {
+          const demoName = "Facebook Merchant " + Math.floor(100 + Math.random() * 900);
+          const demoEmail = "fb_merchant_" + Date.now() + "@meta.com";
+          const res = await window.App.api.post('/api/auth/facebook', { name: demoName, email: demoEmail, fb_token: "mock_fb_access_token_" + Date.now() });
+          if (res && res.success && res.token) {
+            localStorage.setItem('retailman_jwt_token', res.token);
+            localStorage.setItem('retailman_user_profile', JSON.stringify(res.user));
+            window.location.href = '/';
+          }
+        } catch (err) {
+          alert('Facebook Login error: ' + err.message);
+        }
+      }
+    };
+  </script>
+</body>
+</html>

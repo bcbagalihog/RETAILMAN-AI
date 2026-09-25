@@ -1,0 +1,13 @@
+[
+  {
+    "id": "PAY-muh5h0us-e53",
+    "tenantId": "default_demo",
+    "packId": "starter_500",
+    "amount": 99,
+    "paymentMethod": "GCash / Maya",
+    "refNumber": "102948572019",
+    "status": "approved",
+    "createdAt": "2026-09-25T16:03:17.524Z",
+    "approvedAt": "2026-09-25T16:03:31.062Z"
+  }
+]

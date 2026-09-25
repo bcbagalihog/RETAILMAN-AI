@@ -1,0 +1,35 @@
+[
+  {
+    "id": "log_1790352211064_jv3n",
+    "timestamp": "2026-09-25T16:03:31.064Z",
+    "level": "SUCCESS",
+    "category": "PAYMENT_APPROVED",
+    "message": "Payment approved for tenant default_demo",
+    "metadata": {
+      "paymentId": "PAY-muh5h0us-e53",
+      "refNumber": "102948572019",
+      "tenantId": "default_demo"
+    }
+  },
+  {
+    "id": "log_1790352197526_rb5g",
+    "timestamp": "2026-09-25T16:03:17.526Z",
+    "level": "INFO",
+    "category": "PAYMENT_SUBMITTED",
+    "message": "Payment reference submitted by default_demo@retailman.local",
+    "metadata": {
+      "tenantId": "default_demo",
+      "refNumber": "102948572019",
+      "packId": "starter_500",
+      "amount": 99
+    }
+  },
+  {
+    "id": "log_1790352170218_ya3f",
+    "timestamp": "2026-09-25T16:02:50.218Z",
+    "level": "INFO",
+    "category": "ADMIN_AUTH",
+    "message": "Super Admin logged in successfully",
+    "metadata": {}
+  }
+]

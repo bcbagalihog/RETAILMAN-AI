@@ -252,6 +252,93 @@ async function deductToken(tenantId) {
   return true;
 }
 
+async function submitPaymentReference(tenantId, packId, amount, paymentMethod, refNumber) {
+  const payments = await readJSON("payments.json", []);
+  const newPayment = {
+    id: "PAY-" + Date.now().toString(36) + "-" + Math.random().toString(36).substring(2, 5),
+    tenantId,
+    packId: packId || "starter_500",
+    amount: Number(amount) || 99,
+    paymentMethod: paymentMethod || "GCash / Maya",
+    refNumber: refNumber ? String(refNumber).trim() : "N/A",
+    status: "pending",
+    createdAt: new Date().toISOString()
+  };
+
+  payments.unshift(newPayment);
+  await safeWriteJSON("payments.json", payments);
+
+  const profile = await getTenantProfile(tenantId);
+  const { logSystemEvent } = require("./vault");
+  await logSystemEvent("INFO", "PAYMENT_SUBMITTED", "Payment reference submitted by " + (profile ? profile.email : tenantId), {
+    tenantId,
+    refNumber,
+    packId,
+    amount
+  });
+
+  return newPayment;
+}
+
+async function getAllPayments() {
+  return await readJSON("payments.json", []);
+}
+
+async function approvePayment(paymentId) {
+  const payments = await readJSON("payments.json", []);
+  const idx = payments.findIndex(p => p.id === paymentId);
+  if (idx === -1) throw new Error("Payment record not found");
+
+  if (payments[idx].status === "approved") {
+    return payments[idx];
+  }
+
+  const p = payments[idx];
+  p.status = "approved";
+  p.approvedAt = new Date().toISOString();
+
+  let tokenAmount = 500;
+  if (p.packId === "starter_500" || p.amount == 99) tokenAmount = 500;
+  else if (p.packId === "growth_2000" || p.amount == 299) tokenAmount = 2000;
+
+  if (p.packId === "pro_unlimited" || p.amount == 499) {
+    await updateSubscription(p.tenantId, "pro", 999999);
+  } else {
+    await addTokens(p.tenantId, tokenAmount);
+  }
+
+  await safeWriteJSON("payments.json", payments);
+
+  const { logSystemEvent } = require("./vault");
+  await logSystemEvent("SUCCESS", "PAYMENT_APPROVED", "Payment approved for tenant " + p.tenantId, {
+    paymentId: p.id,
+    refNumber: p.refNumber,
+    tenantId: p.tenantId
+  });
+
+  return p;
+}
+
+async function getAllTenants() {
+  const users = await readJSON(USERS_FILE, []);
+  return users.map(u => sanitizeUser(u));
+}
+
+const ADMIN_PASSWORD_HASH = hashPassword(process.env.ADMIN_PASSWORD || "retailman_admin_2026");
+
+function verifyAdminPassword(password) {
+  return verifyPassword(password, ADMIN_PASSWORD_HASH);
+}
+
+function generateAdminJWT() {
+  return generateJWT({ role: "super_admin" }, 720);
+}
+
+function verifyAdminJWT(token) {
+  const payload = verifyJWT(token);
+  return payload && payload.role === "super_admin" ? payload : null;
+}
+
 module.exports = {
   generateJWT,
   verifyJWT,
@@ -261,5 +348,12 @@ module.exports = {
   updateSubscription,
   incrementInvoiceUsage,
   addTokens,
-  deductToken
+  deductToken,
+  submitPaymentReference,
+  getAllPayments,
+  approvePayment,
+  getAllTenants,
+  verifyAdminPassword,
+  generateAdminJWT,
+  verifyAdminJWT
 };

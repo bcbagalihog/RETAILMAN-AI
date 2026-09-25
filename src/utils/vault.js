@@ -62,7 +62,27 @@ async function safeWriteJSON(filename, data, tenantId = null) {
   }
 }
 
+async function logSystemEvent(level, category, message, metadata = {}) {
+  try {
+    const logs = await readJSON("system_logs.json", []);
+    const entry = {
+      id: "log_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6),
+      timestamp: new Date().toISOString(),
+      level: level || "INFO",
+      category: category || "GENERAL",
+      message: message || "",
+      metadata: metadata
+    };
+    logs.unshift(entry);
+    if (logs.length > 500) logs.pop();
+    await safeWriteJSON("system_logs.json", logs);
+  } catch (err) {
+    console.error("[System Log Error]:", err);
+  }
+}
+
 module.exports = {
   readJSON,
-  safeWriteJSON
+  safeWriteJSON,
+  logSystemEvent
 };

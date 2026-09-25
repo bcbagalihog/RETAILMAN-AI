@@ -171,6 +171,11 @@
     },
 
     buyPack: async function(packId, amount, costLabel) {
+      if (this.selectedPaymentMethod === 'GCash / Maya') {
+        this.openPaymentSubmissionModal(packId, amount, costLabel);
+        return;
+      }
+
       try {
         if (window.App.toast) window.App.toast('Processing ' + this.selectedPaymentMethod + ' checkout...', 'info');
         const res = await window.App.api.post('/api/tokens/topup', {
@@ -180,7 +185,7 @@
         });
 
         if (res && res.success) {
-          if (window.App.showNotification) window.App.showNotification(res.message, 'success');
+          if (window.App.toast) window.App.toast(res.message, 'success');
           this.fetchBalance();
           this.closeModal();
           if (window.App.auth) window.App.auth.fetchProfile();
@@ -189,6 +194,66 @@
         }
       } catch (err) {
         alert('Payment Error: ' + err.message);
+      }
+    },
+
+    openPaymentSubmissionModal: function(packId, amount, costLabel) {
+      const html = `
+        <div style="display:flex; flex-direction:column; gap:12px; text-align:center;">
+          <div style="background:linear-gradient(135deg, rgba(8,102,255,0.15) 0%, rgba(0,229,255,0.1) 100%); border:2px solid #0866FF; padding:1rem; border-radius:12px;">
+            <div style="font-size:0.8rem; font-weight:800; color:#00E5FF; text-transform:uppercase;">GCASH / MAYA PAYMENT DETAILS</div>
+            <div style="font-size:1.4rem; font-weight:900; color:#fff; margin:4px 0;">Send ${costLabel}</div>
+            <div style="font-size:0.85rem; color:#aaa;">Scan QR or Send to GCash Account:</div>
+            
+            <div style="background:#FFF; color:#000; display:inline-block; padding:8px 16px; border-radius:10px; margin:8px 0; font-weight:900; font-size:1.1rem; border:2px solid #000; box-shadow:3px 3px 0px #000;">
+              📱 0917-888-9999
+            </div>
+            <div style="font-size:0.85rem; font-weight:800; color:#00E5FF;">Ben Anthony B. (RetailMan AI Official)</div>
+          </div>
+
+          <div style="text-align:left; background:var(--bg-card); padding:1rem; border-radius:10px; border:1px solid #333;">
+            <label style="font-size:0.82rem; font-weight:800; color:#aaa; display:block; margin-bottom:4px;">GCASH / MAYA REFERENCE NUMBER:</label>
+            <input type="text" id="gcash-ref-input" placeholder="e.g. 1029 4857 2019" class="nb-input" style="width:100%; height:46px; padding:10px; font-size:1rem; border-radius:8px; font-family:var(--font-mono); margin-bottom:8px;">
+            <div style="font-size:0.75rem; color:#777;">Paste the 13-digit Reference No. from your GCash/Maya SMS or receipt screenshot.</div>
+          </div>
+
+          <button class="nb-btn primary" style="width:100%; font-weight:900; padding:12px; font-size:0.95rem;" onclick="window.App.Tokens.submitReference('${packId}', ${amount})">
+            ✔️ Submit Reference No. for Instant Credit
+          </button>
+        </div>
+      `;
+
+      if (window.App.openModal) {
+        window.App.openModal('📱 GCash / Maya Payment Submission', html);
+      }
+    },
+
+    submitReference: async function(packId, amount) {
+      const refInput = document.getElementById('gcash-ref-input');
+      const refNumber = refInput ? refInput.value.trim() : '';
+
+      if (!refNumber) {
+        alert('Please enter your GCash / Maya Reference Number.');
+        return;
+      }
+
+      try {
+        const res = await window.App.api.post('/api/tokens/submit-payment', {
+          pack_id: packId,
+          amount: amount,
+          payment_method: 'GCash / Maya',
+          ref_number: refNumber
+        });
+
+        if (res && res.success) {
+          alert('✅ Payment Reference #' + refNumber + ' submitted successfully!\nYour tokens will be credited upon admin verification.');
+          this.closeModal();
+          if (window.App.closeModal) window.App.closeModal();
+        } else {
+          alert(res.message || 'Submission failed.');
+        }
+      } catch (err) {
+        alert('Submission Error: ' + err.message);
       }
     },
 

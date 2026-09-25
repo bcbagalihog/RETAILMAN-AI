@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RETAILMAN AI — Super Admin Control Center</title>
+
+  <!-- Google Fonts & Phosphor Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <link rel="stylesheet" href="/css/theme.css?v=19">
+
+  <style>
+    body { background-color: #0B0E14; color: #FFF; font-family: 'Inter', sans-serif; padding: 1rem; }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #000; padding-bottom: 1rem; margin-bottom: 1.5rem; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .metric-card { background: #1C2331; border: 3px solid #000; box-shadow: 4px 4px 0px #000; padding: 1.2rem; border-radius: 12px; }
+    .metric-title { font-size: 0.8rem; font-weight: 800; color: #00E5FF; text-transform: uppercase; margin-bottom: 0.3rem; }
+    .metric-val { font-size: 1.8rem; font-weight: 900; font-family: 'JetBrains Mono', monospace; }
+    
+    .tab-btn { background: #151A23; border: 2px solid #2D3748; color: #A0AEC0; padding: 8px 16px; border-radius: 8px; font-weight: 800; cursor: pointer; }
+    .tab-btn.active { background: #0866FF; color: #FFF; border-color: #000; box-shadow: 2px 2px 0px #000; }
+    
+    .data-table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: #151A23; border: 2px solid #000; border-radius: 10px; overflow: hidden; }
+    .data-table th, .data-table td { padding: 12px; text-align: left; border-bottom: 1px solid #2D3748; font-size: 0.88rem; }
+    .data-table th { background: #1C2331; color: #00E5FF; font-weight: 900; }
+    
+    .badge { padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; display: inline-block; }
+    .badge.pending { background: rgba(255, 184, 0, 0.2); color: #FFB800; border: 1px solid #FFB800; }
+    .badge.approved { background: rgba(0, 210, 106, 0.2); color: #00D26A; border: 1px solid #00D26A; }
+    .badge.pro { background: #0866FF; color: #FFF; }
+  </style>
+</head>
+<body class="dark-theme">
+
+  <!-- Admin Login Overlay -->
+  <div id="admin-login-modal" class="modal-overlay">
+    <div class="modal-card nb-card" style="max-width:400px; padding:1.5rem; text-align:center;">
+      <div style="font-size:2.5rem; margin-bottom:0.5rem;">👑</div>
+      <h2 style="margin:0 0 0.5rem 0; font-family:var(--font-heading); font-weight:900;">Super Admin Portal</h2>
+      <p style="font-size:0.85rem; color:#aaa; margin-bottom:1.2rem;">Enter your Platform Master Password to access administrative controls.</p>
+      <form onsubmit="event.preventDefault(); AppAdmin.login();">
+        <input type="password" id="admin-pass" class="nb-input" placeholder="Master Password" required style="width:100%; height:46px; padding:10px; margin-bottom:1rem; font-size:1rem; text-align:center; border-radius:8px;">
+        <button type="submit" class="nb-btn primary" style="width:100%; height:46px; font-weight:900; font-size:1rem; border-radius:8px;">
+          Unlock Admin Portal
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div id="admin-dashboard" style="display:none; max-width:1200px; margin:0 auto;">
+    <div class="admin-header">
+      <div style="display:flex; align-items:center; gap:0.8rem;">
+        <i class="ph-bold ph-shield-check" style="font-size:2rem; color:#00E5FF;"></i>
+        <div>
+          <h1 style="margin:0; font-family:var(--font-heading); font-weight:900; font-size:1.5rem;">RETAILMAN AI — Super Admin Control Center</h1>
+          <div style="font-size:0.8rem; color:#888;">Self-Hosted Platform Owner & Licensing Command Center</div>
+        </div>
+      </div>
+      <button class="nb-btn danger" style="padding:6px 14px; font-size:0.85rem;" onclick="AppAdmin.logout()">
+        <i class="ph-bold ph-sign-out"></i> Exit Admin
+      </button>
+    </div>
+
+    <!-- Platform Metrics Top Grid -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-title">TOTAL REGISTERED STORES</div>
+        <div class="metric-val" id="metric-merchants">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-title">ACTIVE PRO STORES</div>
+        <div class="metric-val" id="metric-pro" style="color:#00E5FF;">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-title">PENDING PAYMENT APPROVALS</div>
+        <div class="metric-val" id="metric-pending" style="color:#FFB800;">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-title">PLATFORM REVENUE (APPROVED)</div>
+        <div class="metric-val" id="metric-revenue" style="color:#00D26A;">₱0.00</div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div style="display:flex; gap:10px; margin-bottom:1.2rem;">
+      <button class="tab-btn active" id="tab-btn-payments" onclick="AppAdmin.switchTab('payments')">
+        🪙 Pending Payments Queue
+      </button>
+      <button class="tab-btn" id="tab-btn-merchants" onclick="AppAdmin.switchTab('merchants')">
+        🏬 Registered Merchant Stores
+      </button>
+      <button class="tab-btn" id="tab-btn-logs" onclick="AppAdmin.switchTab('logs')">
+        📋 System & Error Logs
+      </button>
+    </div>
+
+    <!-- Tab 1: Payments Queue -->
+    <div id="tab-content-payments">
+      <div style="font-weight:900; font-size:1.1rem; margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
+        <span>🪙 GCash / Maya Payment Submissions</span>
+        <button class="nb-btn outline" style="font-size:0.8rem; padding:4px 10px;" onclick="AppAdmin.loadPayments()">Refresh List</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Merchant / Store</th>
+            <th>Pack Item</th>
+            <th>Amount</th>
+            <th>GCash/Maya Ref No</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="table-payments-body">
+          <tr><td colspan="7" style="text-align:center; color:#777;">Loading payments...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Tab 2: Merchants Directory -->
+    <div id="tab-content-merchants" style="display:none;">
+      <div style="font-weight:900; font-size:1.1rem; margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
+        <span>🏬 Merchant Accounts Directory</span>
+        <button class="nb-btn outline" style="font-size:0.8rem; padding:4px 10px;" onclick="AppAdmin.loadMerchants()">Refresh Merchants</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Tenant ID</th>
+            <th>Store Name</th>
+            <th>Email</th>
+            <th>Plan Status</th>
+            <th>Token Balance</th>
+            <th>Created Date</th>
+            <th>Admin Actions</th>
+          </tr>
+        </thead>
+        <tbody id="table-merchants-body">
+          <tr><td colspan="7" style="text-align:center; color:#777;">Loading merchants...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Tab 3: System Logs -->
+    <div id="tab-content-logs" style="display:none;">
+      <div style="font-weight:900; font-size:1.1rem; margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
+        <span>📋 System Activity & Error Logs</span>
+        <button class="nb-btn outline" style="font-size:0.8rem; padding:4px 10px;" onclick="AppAdmin.loadLogs()">Refresh Logs</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Level</th>
+            <th>Category</th>
+            <th>Message</th>
+            <th>Metadata</th>
+          </tr>
+        </thead>
+        <tbody id="table-logs-body">
+          <tr><td colspan="5" style="text-align:center; color:#777;">Loading logs...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script>
+    const AppAdmin = {
+      tokenKey: 'retailman_admin_jwt',
+
+      init() {
+        const token = localStorage.getItem(this.tokenKey);
+        if (token) {
+          document.getElementById('admin-login-modal').style.display = 'none';
+          document.getElementById('admin-dashboard').style.display = 'block';
+          this.loadDashboard();
+        } else {
+          document.getElementById('admin-login-modal').style.display = 'flex';
+          document.getElementById('admin-dashboard').style.display = 'none';
+        }
+      },
+
+      async login() {
+        const password = document.getElementById('admin-pass').value;
+        try {
+          const res = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password })
+          }).then(r => r.json());
+
+          if (res.success && res.token) {
+            localStorage.setItem(this.tokenKey, res.token);
+            this.init();
+          } else {
+            alert(res.message || 'Invalid Super Admin password.');
+          }
+        } catch (err) {
+          alert('Login error: ' + err.message);
+        }
+      },
+
+      logout() {
+        localStorage.removeItem(this.tokenKey);
+        this.init();
+      },
+
+      getHeaders() {
+        return {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem(this.tokenKey)
+        };
+      },
+
+      async loadDashboard() {
+        this.loadMetrics();
+        this.loadPayments();
+        this.loadMerchants();
+        this.loadLogs();
+      },
+
+      async loadMetrics() {
+        try {
+          const res = await fetch('/api/admin/metrics', { headers: this.getHeaders() }).then(r => r.json());
+          if (res.success && res.metrics) {
+            document.getElementById('metric-merchants').innerText = res.metrics.totalMerchants;
+            document.getElementById('metric-pro').innerText = res.metrics.activeProStores;
+            document.getElementById('metric-pending').innerText = res.metrics.pendingPayments;
+            document.getElementById('metric-revenue').innerText = '₱' + res.metrics.totalRevenue.toLocaleString();
+          }
+        } catch (_) {}
+      },
+
+      async loadPayments() {
+        try {
+          const res = await fetch('/api/admin/payments', { headers: this.getHeaders() }).then(r => r.json());
+          const tbody = document.getElementById('table-payments-body');
+          if (res.success && res.payments) {
+            if (res.payments.length === 0) {
+              tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#777;">No payment reference submissions found.</td></tr>';
+              return;
+            }
+            tbody.innerHTML = res.payments.map(p => `
+              <tr>
+                <td>${new Date(p.createdAt).toLocaleString()}</td>
+                <td><strong>${p.tenantId}</strong></td>
+                <td>${p.packId}</td>
+                <td><strong>₱${p.amount}</strong></td>
+                <td><code style="color:#00E5FF; font-weight:bold;">${p.refNumber}</code></td>
+                <td><span class="badge ${p.status}">${p.status.toUpperCase()}</span></td>
+                <td>
+                  ${p.status === 'pending' ? `
+                    <button class="nb-btn primary" style="font-size:0.75rem; padding:4px 8px;" onclick="AppAdmin.approvePayment('${p.id}')">
+                      ✔️ Approve & Credit
+                    </button>
+                  ` : '<span style="color:#00D26A; font-weight:bold;">Approved</span>'}
+                </td>
+              </tr>
+            `).join('');
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      },
+
+      async approvePayment(paymentId) {
+        if (!confirm('Approve payment & credit tokens to merchant?')) return;
+        try {
+          const res = await fetch('/api/admin/approve-payment', {
+            method: 'POST',
+            headers: this.getHeaders(),
+            body: JSON.stringify({ payment_id: paymentId })
+          }).then(r => r.json());
+
+          if (res.success) {
+            alert(res.message);
+            this.loadDashboard();
+          } else {
+            alert(res.message || 'Approval failed');
+          }
+        } catch (err) {
+          alert('Error: ' + err.message);
+        }
+      },
+
+      async loadMerchants() {
+        try {
+          const res = await fetch('/api/admin/merchants', { headers: this.getHeaders() }).then(r => r.json());
+          const tbody = document.getElementById('table-merchants-body');
+          if (res.success && res.merchants) {
+            tbody.innerHTML = res.merchants.map(m => {
+              const sub = m.subscription || {};
+              const isPro = sub.plan === 'pro';
+              return `
+                <tr>
+                  <td><code>${m.tenantId}</code></td>
+                  <td><strong>${m.storeName || 'Store'}</strong></td>
+                  <td>${m.email}</td>
+                  <td><span class="badge ${isPro ? 'pro' : 'pending'}">${(sub.plan || 'free_plan').toUpperCase()}</span></td>
+                  <td>🪙 <strong>${isPro ? 'UNLIMITED' : (sub.tokensBalance !== undefined ? sub.tokensBalance : 50)}</strong></td>
+                  <td>${new Date(m.createdAt).toLocaleDateString()}</td>
+                  <td>
+                    <button class="nb-btn outline" style="font-size:0.75rem; padding:3px 6px;" onclick="AppAdmin.topupMerchant('${m.tenantId}', 'add_tokens', 500)">
+                      + 500 Tokens
+                    </button>
+                    ${!isPro ? `
+                      <button class="nb-btn primary" style="font-size:0.75rem; padding:3px 6px;" onclick="AppAdmin.topupMerchant('${m.tenantId}', 'upgrade_pro')">
+                        👑 Upgrade Pro
+                      </button>
+                    ` : ''}
+                  </td>
+                </tr>
+              `;
+            }).join('');
+          }
+        } catch (e) {}
+      },
+
+      async topupMerchant(tenantId, action, amount) {
+        try {
+          const res = await fetch('/api/admin/topup-merchant', {
+            method: 'POST',
+            headers: this.getHeaders(),
+            body: JSON.stringify({ target_tenant_id: tenantId, action, amount })
+          }).then(r => r.json());
+
+          if (res.success) {
+            alert(res.message);
+            this.loadDashboard();
+          }
+        } catch (err) {
+          alert('Error: ' + err.message);
+        }
+      },
+
+      async loadLogs() {
+        try {
+          const res = await fetch('/api/admin/logs', { headers: this.getHeaders() }).then(r => r.json());
+          const tbody = document.getElementById('table-logs-body');
+          if (res.success && res.logs) {
+            tbody.innerHTML = res.logs.slice(0, 100).map(l => `
+              <tr>
+                <td style="font-size:0.75rem; color:#aaa;">${new Date(l.timestamp).toLocaleString()}</td>
+                <td><span class="badge ${l.level === 'ERROR' ? 'pending' : 'approved'}">${l.level}</span></td>
+                <td><strong>${l.category}</strong></td>
+                <td>${l.message}</td>
+                <td><code style="font-size:0.75rem; color:#888;">${JSON.stringify(l.metadata || {})}</code></td>
+              </tr>
+            `).join('');
+          }
+        } catch (e) {}
+      },
+
+      switchTab(tab) {
+        ['payments', 'merchants', 'logs'].forEach(t => {
+          document.getElementById('tab-content-' + t).style.display = (t === tab ? 'block' : 'none');
+          document.getElementById('tab-btn-' + t).classList.toggle('active', t === tab);
+        });
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      AppAdmin.init();
+    });
+  </script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
-const { readJSON, safeWriteJSON } = require("./src/utils/vault");
+const { readJSON, safeWriteJSON, logSystemEvent } = require("./src/utils/vault");
 const {
   addTokens,
   deductToken,
@@ -10,7 +10,14 @@ const {
   loginTenant,
   getTenantProfile,
   updateSubscription,
-  incrementInvoiceUsage
+  incrementInvoiceUsage,
+  submitPaymentReference,
+  getAllPayments,
+  approvePayment,
+  getAllTenants,
+  verifyAdminPassword,
+  generateAdminJWT,
+  verifyAdminJWT
 } = require("./src/utils/auth");
 
 const PORT = process.env.PORT || 3850;
@@ -255,6 +262,114 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  if (method === "POST" && pathname === "/api/tokens/submit-payment") {
+    try {
+      const { pack_id, amount, payment_method, ref_number } = await getRequestBody(req);
+      if (!ref_number) {
+        return sendJSON(res, { success: false, message: "GCash/Maya Reference Number is required." }, 400);
+      }
+      const paymentRecord = await submitPaymentReference(tenantId, pack_id, amount, payment_method, ref_number);
+      return sendJSON(res, {
+        success: true,
+        message: "✅ Reference #" + ref_number + " submitted! Your tokens will be credited upon admin verification.",
+        payment: paymentRecord
+      });
+    } catch (err) {
+      return sendJSON(res, { success: false, message: err.message }, 400);
+    }
+  }
+
+  // --- SUPER ADMIN API ROUTES ---
+
+  if (method === "POST" && pathname === "/api/admin/login") {
+    try {
+      const { password } = await getRequestBody(req);
+      if (!password || !verifyAdminPassword(password)) {
+        await logSystemEvent("WARNING", "ADMIN_AUTH", "Failed admin login attempt");
+        return sendJSON(res, { success: false, message: "Invalid Super Admin password." }, 401);
+      }
+      const token = generateAdminJWT();
+      await logSystemEvent("INFO", "ADMIN_AUTH", "Super Admin logged in successfully");
+      return sendJSON(res, { success: true, token, message: "Super Admin authenticated" });
+    } catch (err) {
+      return sendJSON(res, { success: false, message: err.message }, 500);
+    }
+  }
+
+  let isAdmin = false;
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    const adminPayload = verifyAdminJWT(authHeader.substring(7));
+    if (adminPayload) isAdmin = true;
+  }
+
+  if (pathname.startsWith("/api/admin/") && pathname !== "/api/admin/login") {
+    if (!isAdmin) {
+      return sendJSON(res, { success: false, message: "Super Admin authorization required." }, 403);
+    }
+  }
+
+  if (method === "GET" && pathname === "/api/admin/metrics") {
+    const merchants = await getAllTenants();
+    const payments = await getAllPayments();
+    
+    let totalPlatformRevenue = 0;
+    payments.filter(p => p.status === "approved").forEach(p => {
+      totalPlatformRevenue += (Number(p.amount) || 0);
+    });
+
+    const activeProCount = merchants.filter(m => m.subscription && m.subscription.plan === "pro").length;
+
+    return sendJSON(res, {
+      success: true,
+      metrics: {
+        totalMerchants: merchants.length,
+        activeProStores: activeProCount,
+        pendingPayments: payments.filter(p => p.status === "pending").length,
+        totalRevenue: totalPlatformRevenue
+      }
+    });
+  }
+
+  if (method === "GET" && pathname === "/api/admin/merchants") {
+    const merchants = await getAllTenants();
+    return sendJSON(res, { success: true, merchants });
+  }
+
+  if (method === "GET" && pathname === "/api/admin/payments") {
+    const payments = await getAllPayments();
+    return sendJSON(res, { success: true, payments });
+  }
+
+  if (method === "POST" && pathname === "/api/admin/approve-payment") {
+    try {
+      const { payment_id } = await getRequestBody(req);
+      const approvedPayment = await approvePayment(payment_id);
+      return sendJSON(res, { success: true, message: "Payment approved & tokens credited!", payment: approvedPayment });
+    } catch (err) {
+      return sendJSON(res, { success: false, message: err.message }, 400);
+    }
+  }
+
+  if (method === "POST" && pathname === "/api/admin/topup-merchant") {
+    try {
+      const { target_tenant_id, action, amount } = await getRequestBody(req);
+      let updatedUser;
+      if (action === "add_tokens") {
+        updatedUser = await addTokens(target_tenant_id, amount || 500);
+      } else if (action === "upgrade_pro") {
+        updatedUser = await updateSubscription(target_tenant_id, "pro", 999999);
+      }
+      return sendJSON(res, { success: true, message: "Merchant subscription updated!", user: updatedUser });
+    } catch (err) {
+      return sendJSON(res, { success: false, message: err.message }, 400);
+    }
+  }
+
+  if (method === "GET" && pathname === "/api/admin/logs") {
+    const logs = await readJSON("system_logs.json", []);
+    return sendJSON(res, { success: true, logs });
+  }
+
   // --- CORE ERP API ROUTES (TENANT ISOLATED) ---
 
   if (method === "GET" && pathname === "/api/products") {
@@ -428,7 +543,11 @@ const server = http.createServer(async (req, res) => {
   }
 
   // --- STATIC FILE SERVING ---
-  let reqPath = pathname === "/" ? "/index.html" : pathname;
+  let reqPath = pathname;
+  if (pathname === "/") reqPath = "/index.html";
+  else if (pathname === "/admin") reqPath = "/admin.html";
+  else if (pathname === "/landing" || pathname === "/welcome") reqPath = "/landing.html";
+
   let filePath = path.join(PUBLIC_DIR, reqPath);
 
   if (!filePath.startsWith(PUBLIC_DIR)) {
