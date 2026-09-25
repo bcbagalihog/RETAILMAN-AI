@@ -113,7 +113,7 @@ window.App.POS = {
     cards.forEach((card, idx) => {
       const prod = products[idx];
       if (!prod) return;
-      const match = prod.name.toLowerCase().includes(q) || prod.sku.toLowerCase().includes(q) || prod.barcode.includes(q);
+      const match = (prod.name && prod.name.toLowerCase().includes(q)) || (prod.sku && prod.sku.toLowerCase().includes(q)) || (prod.barcode && String(prod.barcode).toLowerCase().includes(q));
       card.style.display = match ? 'flex' : 'none';
     });
   },
@@ -322,31 +322,36 @@ window.App.POS = {
 
   async processCheckout() {
     const cart = window.App.state.cart;
+    if (!cart || cart.length === 0) {
+      if (window.App.toast) window.App.toast('Cart is empty', 'warning');
+      return;
+    }
     const methodSelect = document.getElementById('checkout-payment-method');
     const paymentMethod = methodSelect ? methodSelect.value : 'Cash';
     const discountInput = document.getElementById('checkout-discount-input');
     const discount = discountInput ? Math.max(0, parseFloat(discountInput.value || 0)) : 0;
 
     const payload = {
+      cart: cart,
       items: cart,
       payment_method: paymentMethod,
-      cashier: window.App.state.cashier,
+      cashier: window.App.state.cashier || 'Manager',
       customer_name: 'Walk-in Retail Buyer',
       discount: discount
     };
 
-    window.App.toast('Processing transaction...', 'info');
-    const res = await window.App.API.checkout(payload);
+    if (window.App.toast) window.App.toast('Processing transaction...', 'info');
+    const res = await window.App.api.checkout(payload);
 
-    if (res.success) {
+    if (res && res.success) {
       window.App.state.cart = [];
       this.currentDiscount = 0;
-      await window.App.refreshData();
+      if (window.App.refreshData) await window.App.refreshData();
       window.App.closeModal();
       this.updateDock();
       this.openReceiptModal(res.invoice);
     } else {
-      window.App.toast(`Checkout error: ${res.message}`, 'error');
+      if (window.App.toast) window.App.toast(`Checkout error: ${res ? res.message : 'Transaction failed'}`, 'error');
     }
   },
 

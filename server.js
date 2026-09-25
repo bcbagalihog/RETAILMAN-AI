@@ -247,39 +247,48 @@ const server = http.createServer(async (req, res) => {
         }
       }
 
-      const { cart = [], payment_method = "Cash", customer_name = "Walk-in", cashier = "Manager", discount = 0 } = await getRequestBody(req);
+      const body = await getRequestBody(req);
+      const cartList = body.cart || body.items || [];
+      const payment_method = body.payment_method || "Cash";
+      const customer_name = body.customer_name || "Walk-in Retail Buyer";
+      const cashier = body.cashier || "Manager";
+      const discount = Number(body.discount) || 0;
+
       let products = await readJSON("products.json", [], tenantId);
       let invoices = await readJSON("invoices.json", [], tenantId);
+      if (!Array.isArray(invoices)) invoices = [];
       let posSessions = await readJSON("pos_sessions.json", [], tenantId);
 
       let subtotal = 0;
       const invoiceItems = [];
 
-      for (const cartItem of cart) {
-        const prodIndex = products.findIndex(p => p.id === cartItem.id || p.sku === cartItem.sku);
-        if (prodIndex !== -1) {
-          const prod = products[prodIndex];
-          const qty = cartItem.qty || 1;
-          prod.stock = Math.max(0, (prod.stock || prod.stock_qty || 0) - qty);
+      for (const cartItem of cartList) {
+        const prodIndex = products.findIndex(p => (p.id && cartItem.id && p.id === cartItem.id) || (p.sku && cartItem.sku && p.sku === cartItem.sku));
+        const qty = Number(cartItem.qty) || 1;
+        const price = Number(cartItem.price) || Number(cartItem.retail_price) || (prodIndex !== -1 ? (Number(products[prodIndex].price) || Number(products[prodIndex].retail_price) || 0) : 0);
+        const name = cartItem.name || (prodIndex !== -1 ? products[prodIndex].name : "Product Item");
 
-          const price = prod.price || prod.retail_price || 0;
-          const lineTotal = price * qty;
-          subtotal += lineTotal;
-          invoiceItems.push({
-            id: prod.id,
-            name: prod.name,
-            qty: qty,
-            price: price
-          });
+        if (prodIndex !== -1) {
+          products[prodIndex].stock = Math.max(0, (Number(products[prodIndex].stock) || Number(products[prodIndex].stock_qty) || 0) - qty);
         }
+
+        const lineTotal = price * qty;
+        subtotal += lineTotal;
+        invoiceItems.push({
+          id: cartItem.id || (prodIndex !== -1 ? products[prodIndex].id : "PRD-" + Date.now()),
+          name: name,
+          qty: qty,
+          price: price
+        });
       }
 
       const total = Math.max(0, subtotal - discount);
-      const invoiceNo = "INV-" + new Date().toISOString().slice(0,10).replace(/-/g,"") + "-" + Math.floor(100 + Math.random() * 900);
+      const today = new Date();
+      const invoiceNo = "INV-" + today.getFullYear() + String(today.getMonth() + 1).padStart(2, '0') + String(today.getDate()).padStart(2, '0') + "-" + Math.floor(100 + Math.random() * 900);
 
       const newInvoice = {
         invoice_no: invoiceNo,
-        date: new Date().toISOString(),
+        date: today.toISOString(),
         customer_name: customer_name,
         cashier: cashier,
         items: invoiceItems,
@@ -294,14 +303,15 @@ const server = http.createServer(async (req, res) => {
       invoices.unshift(newInvoice);
       await safeWriteJSON("invoices.json", invoices, tenantId);
 
-      const todayDateStr = newInvoice.date.slice(0, 10);
+      const todayDateStr = today.toISOString().slice(0, 10);
       const dailyFileName = "invoices_daily/" + todayDateStr + ".json";
       let dailyInvoices = await readJSON(dailyFileName, [], tenantId);
+      if (!Array.isArray(dailyInvoices)) dailyInvoices = [];
       dailyInvoices.unshift(newInvoice);
       await safeWriteJSON(dailyFileName, dailyInvoices, tenantId);
 
       if (posSessions.length > 0 && posSessions[0].status === "OPEN") {
-        posSessions[0].total_sales += total;
+        posSessions[0].total_sales = (Number(posSessions[0].total_sales) || 0) + total;
         await safeWriteJSON("pos_sessions.json", posSessions, tenantId);
       }
 
@@ -309,6 +319,7 @@ const server = http.createServer(async (req, res) => {
 
       return sendJSON(res, { success: true, invoice: newInvoice, updated_products: products });
     } catch (err) {
+      console.error('[Checkout API Error]:', err);
       return sendJSON(res, { success: false, message: err.message }, 500);
     }
   }
