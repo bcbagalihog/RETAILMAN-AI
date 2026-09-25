@@ -94,6 +94,23 @@
       }
     },
 
+    loginWithFacebook: async function() {
+      try {
+        const demoName = "Facebook Merchant " + Math.floor(100 + Math.random() * 900);
+        const demoEmail = "fb_merchant_" + Date.now() + "@meta.com";
+        const res = await window.App.api.post('/api/auth/facebook', { name: demoName, email: demoEmail, fb_token: "mock_fb_access_token_" + Date.now() });
+        if (res && res.success) {
+          this.saveSession(res.token, res.user);
+          if (window.App.showNotification) window.App.showNotification('Successfully logged in with Facebook!', 'success');
+          return true;
+        } else {
+          alert(res.message || 'Facebook login failed.');
+        }
+      } catch (err) {
+        alert('Facebook Login Error: ' + err.message);
+      }
+    },
+
     openModal: function(view) {
       view = view || 'login';
       let modal = document.getElementById('auth-modal');
@@ -143,6 +160,15 @@
               <button onclick="window.App.auth.closeModal()" style="background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer;">&times;</button>
             </div>
 
+            <button type="button" onclick="window.App.auth.loginWithFacebook()" class="nb-btn" style="width:100%; background:#1877F2; color:#fff; font-weight:800; display:flex; align-items:center; justify-content:center; gap:0.5rem; border:2px solid #000; box-shadow:2px 2px 0px #000; padding:0.75rem; margin-bottom:1rem;">
+              <i class="ph-bold ph-facebook-logo" style="font-size:1.2rem;"></i> Log in with Facebook
+            </button>
+
+            <div style="margin-top:0.5rem; margin-bottom:1rem; text-align:center; position:relative;">
+              <hr style="border:none; border-top:1px solid #333; margin:0.8rem 0;">
+              <span style="position:absolute; top:-9px; left:50%; transform:translateX(-50%); background:#18191a; padding:0 8px; font-size:0.75rem; color:#888;">OR</span>
+            </div>
+
             <form onsubmit="event.preventDefault(); ` + (isLogin ? 'window.App.auth.handleLoginSubmit()' : 'window.App.auth.handleRegisterSubmit()') + `">
               ` + (isLogin ? '' : `
                 <div style="margin-bottom:1rem;">
@@ -162,7 +188,7 @@
               </div>
 
               <button type="submit" class="nb-btn primary" style="width:100%; font-weight:900; font-size:1.05rem; padding:0.8rem; margin-bottom:1rem;">
-                ` + (isLogin ? 'Log In to RETAILMAN AI' : 'Start 14-Day Free Trial') + `
+                ` + (isLogin ? 'Log In with Email' : 'Start 14-Day Free Trial') + `
               </button>
             </form>
 

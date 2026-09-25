@@ -80,6 +80,25 @@ const server = http.createServer(async (req, res) => {
   }
 
   // --- AUTH & SUBSCRIPTION API ROUTES ---
+  
+  if (method === "POST" && pathname === "/api/auth/facebook") {
+    try {
+      const { fb_token, name, email } = await getRequestBody(req);
+      const fbEmail = email || ("fb_user_" + Date.now() + "@meta.auth");
+      const storeName = name ? (name + "'s Store") : "Facebook Store Outlet";
+      
+      let result;
+      try {
+        result = await loginTenant(fbEmail, "facebook_oauth_secure_pass");
+      } catch (_) {
+        result = await registerTenant(fbEmail, "facebook_oauth_secure_pass", storeName);
+      }
+      return sendJSON(res, Object.assign({ success: true }, result));
+    } catch (err) {
+      return sendJSON(res, { success: false, message: err.message }, 400);
+    }
+  }
+
   if (method === "POST" && pathname === "/api/auth/register") {
     try {
       const { email, password, storeName } = await getRequestBody(req);

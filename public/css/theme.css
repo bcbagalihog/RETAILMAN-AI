@@ -726,3 +726,55 @@ body.dark-theme {
   justify-content: center;
   padding: 1rem;
 }
+
+/* --- Responsive Mobile Header (Fix Compression on Narrow Screens) --- */
+@media (max-width: 640px) {
+  #app-header {
+    padding: 0.5rem 0.75rem !important;
+  }
+  
+  .header-left {
+    gap: 0.4rem !important;
+  }
+  
+  .brand-title {
+    font-size: 1.1rem !important;
+  }
+  
+  .brand-logo-img {
+    height: 28px !important;
+    width: 28px !important;
+  }
+  
+  .meta-status-pill {
+    padding: 3px 8px !important;
+    font-size: 0.72rem !important;
+  }
+  
+  .header-right {
+    gap: 0.3rem !important;
+  }
+  
+  /* Hide text labels on mobile screens, showing clean icon badges */
+  .sub-badge-pill {
+    padding: 4px 8px !important;
+    font-size: 0.75rem !important;
+  }
+  .sub-badge-pill span {
+    display: none !important;
+  }
+
+  .auth-chip {
+    padding: 4px 8px !important;
+  }
+  .auth-chip span {
+    display: none !important;
+  }
+
+  .settings-chip {
+    padding: 4px 8px !important;
+  }
+  .settings-chip span {
+    display: none !important;
+  }
+}
